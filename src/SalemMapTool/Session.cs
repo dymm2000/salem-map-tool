@@ -100,6 +100,9 @@ namespace SalemElderTileMerger
 					right = Math.Max(right, clone.X + tile.Image.Width);
 					top = Math.Min(top, clone.Y);
 					bottom = Math.Max(bottom, clone.Y + tile.Image.Height);
+
+					if (tile == session.selected)
+						selected = clone;
 				}
 			}
 
@@ -121,6 +124,12 @@ namespace SalemElderTileMerger
 				g.FillRectangle(Brushes.Blue, 0, 0, image.Width, image.Height);
 				foreach (Tile tile in tiles)
 					g.DrawImage(tile.Image, tile.X, tile.Y);
+
+				if (selected != null)
+				{
+					g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+				}
 			}
 		}
 
