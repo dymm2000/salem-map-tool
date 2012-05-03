@@ -15,7 +15,7 @@ As well you will need .Net 3.5 (included in Windows 7)
 
 Open the tool. There are sessions list on the left and image on the rigth.
 
-Ender's custom client saves map tiles (100x100) in *<UserHome>/Salem/maps*. It creates new session every time you teleport, login or enter to home, for example. 
+Ender's custom client saves map tiles (100x100) in *UserHome/Salem/maps*. It creates new session every time you teleport, login or enter to home, for example. 
 
 Import session(s)
 
@@ -44,7 +44,7 @@ You can remove session(s) from the list
 
 http://salem-map-tool.googlecode.com/files/screenRemoveMenu.png
 
-It's important to save merge result, so you can load it in future and use for further merges.
+It's important to save merge result, so you can load it in the future and use for further merges.
 
 http://salem-map-tool.googlecode.com/files/screenExportMenu.png
 http://salem-map-tool.googlecode.com/files/screenExportDialog.png
