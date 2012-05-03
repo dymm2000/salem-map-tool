@@ -1,0 +1,53 @@
+#summary Short How-to
+#labels Featured
+
+= What-is-it and How-To =
+
+This is small utility for combining and merging maps from the Salem game.
+
+First, you will need the Ender's custom client
+
+http://forum.paradoxplaza.com/forum/showthread.php?603874-Salem-client-by-Ender
+
+As well you will need .Net 3.5 (included in Windows 7)
+
+
+= Details =
+
+Open the tool. There are sessions list on the left and image on the rigth.
+
+Ender's custom client saves map tiles (100x100) in *!UserHome/Salem/maps*. It creates new session every time you teleport, login or enter to home, for example. 
+
+Import session(s)
+
+http://salem-map-tool.googlecode.com/files/screenImportMenu.png
+http://salem-map-tool.googlecode.com/files/screenImportDialog.png
+
+Now the sessions list is filled. You can see whole map of the session and switch zoom by right click on the image.
+
+http://salem-map-tool.googlecode.com/files/screenSession.png
+http://salem-map-tool.googlecode.com/files/screenSessionZoom.png
+
+For merging two or more session with common tile select this tile on each session image (not zoomed) by left click
+
+http://salem-map-tool.googlecode.com/files/screenMergeSource1.png
+http://salem-map-tool.googlecode.com/files/screenMergeSource2.png
+
+Then select those sessions in the list and choose "Merge"
+
+http://salem-map-tool.googlecode.com/files/screenMergeMenu.png
+
+New session will be created
+
+http://salem-map-tool.googlecode.com/files/screenMergeResult.png
+
+You can remove session(s) from the list
+
+http://salem-map-tool.googlecode.com/files/screenRemoveMenu.png
+
+It's important to save merge result, so you can load it in the future and use for further merges.
+
+http://salem-map-tool.googlecode.com/files/screenExportMenu.png
+http://salem-map-tool.googlecode.com/files/screenExportDialog.png
+
+When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one.
