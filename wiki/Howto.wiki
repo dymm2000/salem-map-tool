@@ -51,3 +51,8 @@ http://salem-map-tool.googlecode.com/files/screenExportMenu.png
 http://salem-map-tool.googlecode.com/files/screenExportDialog.png
 
 When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one.
+
+
+Selected tile will be saved as origin, i.e. "tile_0_0.png"
+
+If none selected, the top-left one.
