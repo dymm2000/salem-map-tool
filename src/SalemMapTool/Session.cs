@@ -120,15 +120,7 @@ namespace SalemElderTileMerger
 			{
 				g.FillRectangle(Brushes.Blue, 0, 0, image.Width, image.Height);
 				foreach (Tile tile in tiles)
-				{
 					g.DrawImage(tile.Image, tile.X, tile.Y);
-
-					if (selected == tile)
-					{
-						g.DrawRectangle(Pens.White, tile.X, tile.Y, tile.Image.Width - 1, tile.Image.Height - 1);
-						g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), tile.X, tile.Y, tile.Image.Width - 1, tile.Image.Height - 1);
-					}
-				}
 			}
 		}
 
@@ -159,12 +151,23 @@ namespace SalemElderTileMerger
 			if (hit == null)
 				return;
 
-			if (selected == hit)
-				selected = null;
-			else
-				selected = hit;
+			using (Graphics g = Graphics.FromImage(image))
+			{ 
+				if (selected != null)
+					g.DrawImage(selected.Image, selected.X, selected.Y);
 
-			Draw();
+				if (selected == hit)
+				{
+					selected = null;
+				}
+				else
+				{
+					selected = hit;
+
+					g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+				}
+			}
 		}
 		public void Draw(Graphics g, int w, int h)
 		{
@@ -185,11 +188,33 @@ namespace SalemElderTileMerger
 		}
 		public void Save(string directory)
 		{
+			if (selected != null)
+			{ 
+				using (Graphics g = Graphics.FromImage(image))
+					g.DrawImage(selected.Image, selected.X, selected.Y);
+			}
 			image.Save(Path.Combine(directory, name + ".png"), ImageFormat.Png);
+			if (selected != null)
+			{
+				using (Graphics g = Graphics.FromImage(image))
+				{ 
+					g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+				}
+			}
+
 			string mapdir = Path.Combine(directory, name);
 			Directory.CreateDirectory(mapdir);
-			foreach (Tile tile in tiles)
-				tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.X / tile.Image.Width, tile.Y / tile.Image.Height)), ImageFormat.Png);
+			if (selected == null)
+			{
+				foreach (Tile tile in tiles)
+					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.X / tile.Image.Width, tile.Y / tile.Image.Height)), ImageFormat.Png);
+			}
+			else
+			{ 
+				foreach (Tile tile in tiles)
+					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - selected.X) / tile.Image.Width, (tile.Y - selected.Y) / tile.Image.Height)), ImageFormat.Png);
+			}
 		}
 
 		public override string ToString()
