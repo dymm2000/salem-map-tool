@@ -132,7 +132,7 @@ namespace SalemElderTileMerger
 						new RectangleF(0, 0, tile.Image.Width, tile.Image.Height), GraphicsUnit.Pixel);
 			}
 		}
-		void Draw(Graphics g, int w, int h, int zoom, bool selection)
+		void Draw(Graphics g, int w, int h, int zoom)
 		{
 			if (zoom == -1)
 			{
@@ -166,7 +166,7 @@ namespace SalemElderTileMerger
 					g.DrawImage(tile.Image, x, y);
 				}
 
-				if (selection && selected != null && source.IntersectsWith(new RectangleF(selected.X, selected.Y, selected.Image.Width, selected.Image.Height)))
+				if (selected != null && source.IntersectsWith(new RectangleF(selected.X, selected.Y, selected.Image.Width, selected.Image.Height)))
 				{
 					float x = target.Left + selected.X - source.Left;
 					float y = target.Top + selected.Y - source.Top;
@@ -223,7 +223,7 @@ namespace SalemElderTileMerger
 		}
 		public void Draw(Graphics g, int w, int h)
 		{
-			Draw(g, w, h, zoom, true);
+			Draw(g, w, h, zoom);
 		}
 		public void Save(string directory)
 		{
@@ -245,7 +245,8 @@ namespace SalemElderTileMerger
 				using (Image i = new Bitmap(Width, Height))
 				{
 					using (Graphics g = Graphics.FromImage(i))
-						Draw(g, Width, Height, 0, false);
+						foreach (Tile tile in tiles)
+							g.DrawImage(tile.Image, tile.X, tile.Y);
 
 					i.Save(Path.Combine(directory, Name + ".png"), ImageFormat.Png);
 				}
