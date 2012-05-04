@@ -7,6 +7,7 @@ using System.IO;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace SalemElderTileMerger
 {
@@ -24,15 +25,14 @@ namespace SalemElderTileMerger
 			}
 		}
 
-		string name;
-		Image image;
-		bool zoom = true;
+		Image preview;
+		int zoom = -1;
 		Tile selected = null;
 		List<Tile> tiles = new List<Tile>();
 
 		public Session(string name, string path)
 		{
-			this.name = name;
+			Name = name;
 
 			int left = 0;
 			int right = 0;
@@ -63,13 +63,14 @@ namespace SalemElderTileMerger
 				tile.Y -= top;
 			}
 
-			image = new Bitmap(right - left, bottom - top);
+			Width = right - left;
+			Height = bottom - top;
 
-			Draw();
+			DrawPreview();
 		}
 		public Session(string name, IList sessions)
 		{
-			this.name = name;
+			Name = name;
 
 			int left = 0;
 			int right = 0;
@@ -112,40 +113,82 @@ namespace SalemElderTileMerger
 				tile.Y -= top;
 			}
 
-			image = new Bitmap(right - left, bottom - top);
+			Width = right - left;
+			Height = bottom - top;
 
-			Draw();
+			DrawPreview();
 		}
 
-		void Draw()
-		{ 
-			using (Graphics g = Graphics.FromImage(image))
-			{
-				g.FillRectangle(Brushes.Blue, 0, 0, image.Width, image.Height);
-				foreach (Tile tile in tiles)
-					g.DrawImage(tile.Image, tile.X, tile.Y);
+		void DrawPreview()
+		{
+			float scale = Math.Min(1, Math.Min(5000f / Width, 5000f / Height));
 
-				if (selected != null)
+			preview = new Bitmap((int)(scale * Width), (int)(scale * Height));
+			using (Graphics g = Graphics.FromImage(preview))
+			{
+				foreach (Tile tile in tiles)
+					g.DrawImage(tile.Image,
+						new RectangleF(scale * tile.X, scale * tile.Y, scale * tile.Image.Width, scale * tile.Image.Height),
+						new RectangleF(0, 0, tile.Image.Width, tile.Image.Height), GraphicsUnit.Pixel);
+			}
+		}
+		void Draw(Graphics g, int w, int h, int zoom, bool selection)
+		{
+			if (zoom == -1)
+			{
+				float scale = Math.Min(w * 1f / preview.Width, h * 1f / preview.Height);
+				float x0 = (w - scale * preview.Width) / 2;
+				float y0 = (h - scale * preview.Height) / 2;
+				g.DrawImage(preview, 
+					new RectangleF(x0, y0, scale * preview.Width, scale * preview.Height), 
+					new RectangleF(0, 0, preview.Width, preview.Height), GraphicsUnit.Pixel);
+
+				scale = Math.Min(w * 1f / Width, h * 1f / Height);
+				x0 = (w - scale * Width) / 2;
+				y0 = (h - scale * Height) / 2;
+				g.DrawRectangle(
+					//Pens.Red,
+					new Pen(Brushes.Red, 3), 
+					//new Pen(new HatchBrush(HatchStyle.DiagonalCross, Color.Red, Color.Transparent), 10),
+					x0 + scale * X * Width, y0 + scale * Y * Height, scale * Math.Min(w, Width) - 1, scale * Math.Min(h, Height) - 1);
+			}
+			else
+			{
+				RectangleF source = new RectangleF(X * Width, Y * Height, w, h);
+				RectangleF target = new RectangleF((w - Math.Min(w, Width)) / 2, (h - Math.Min(h, Height)) / 2, w, h);
+				foreach (Tile tile in tiles)
 				{
-					g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
-					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+					if (!source.IntersectsWith(new RectangleF(tile.X, tile.Y, tile.Image.Width, tile.Image.Height)))
+						continue;
+
+					float x = target.Left + tile.X - source.Left;
+					float y = target.Top + tile.Y - source.Top;
+					g.DrawImage(tile.Image, x, y);
+				}
+
+				if (selection && selected != null && source.IntersectsWith(new RectangleF(selected.X, selected.Y, selected.Image.Width, selected.Image.Height)))
+				{
+					float x = target.Left + selected.X - source.Left;
+					float y = target.Top + selected.Y - source.Top;
+					g.DrawRectangle(Pens.White, x, y, selected.Image.Width - 1, selected.Image.Height - 1);
+					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), x, y, selected.Image.Width - 1, selected.Image.Height - 1);
 				}
 			}
 		}
 
-		public bool Zoom()
+		public void Zoom(int zoom)
 		{
-			return zoom = !zoom;
+			this.zoom = this.zoom == 0 ? -1 : 0;
 		}
 		public void Hit(int x, int y, int w, int h)
 		{
-			if (zoom)
+			if (zoom != 0)
 				return;
 
-			int x0 = (w - Math.Min(w, image.Width)) / 2;
-			int y0 = (h - Math.Min(h, image.Height)) / 2;
-			float xx = X * image.Width + x - x0;
-			float yy = Y * image.Height + y - y0;
+			int x0 = (w - Math.Min(w, Width)) / 2;
+			int y0 = (h - Math.Min(h, Height)) / 2;
+			float xx = X * Width + x - x0;
+			float yy = Y * Height + y - y0;
 
 			Tile hit = null;
 			foreach (Tile tile in tiles)
@@ -160,59 +203,31 @@ namespace SalemElderTileMerger
 			if (hit == null)
 				return;
 
-			using (Graphics g = Graphics.FromImage(image))
-			{ 
-				if (selected != null)
-					g.DrawImage(selected.Image, selected.X, selected.Y);
+			//using (Graphics g = Graphics.FromImage(image))
+			//{ 
+			//    if (selected != null)
+			//        g.DrawImage(selected.Image, selected.X, selected.Y);
 
-				if (selected == hit)
-				{
-					selected = null;
-				}
-				else
-				{
-					selected = hit;
+			    if (selected == hit)
+			    {
+			        selected = null;
+			    }
+			    else
+			    {
+			        selected = hit;
 
-					g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
-					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
-				}
-			}
+			//        g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+			//        g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
+			    }
+			//}
 		}
 		public void Draw(Graphics g, int w, int h)
 		{
-			if (zoom)
-			{
-				float scale = Math.Min(w * 1f / image.Width, h * 1f / image.Height);
-				float x0 = (w - scale * image.Width) / 2;
-				float y0 = (h - scale * image.Height) / 2;
-				g.DrawImage(image, new RectangleF(x0, y0, scale * image.Width, scale * image.Height), new Rectangle(0, 0, image.Width, image.Height), GraphicsUnit.Pixel);
-				g.DrawRectangle(Pens.Red, x0 + scale * X * image.Width, y0 + scale * Y * image.Height, scale * Math.Min(w, image.Width) - 1, scale * Math.Min(h, image.Height) - 1);
-			}
-			else
-			{
-				int x0 = (w - Math.Min(w, image.Width)) / 2;
-				int y0 = (h - Math.Min(h, image.Height)) / 2;
-				g.DrawImage(image, new Rectangle(x0, y0, w, h), new RectangleF(X * image.Width, Y * image.Height, w, h), GraphicsUnit.Pixel);
-			}
+			Draw(g, w, h, zoom, true);
 		}
 		public void Save(string directory)
 		{
-			if (selected != null)
-			{ 
-				using (Graphics g = Graphics.FromImage(image))
-					g.DrawImage(selected.Image, selected.X, selected.Y);
-			}
-			image.Save(Path.Combine(directory, name + ".png"), ImageFormat.Png);
-			if (selected != null)
-			{
-				using (Graphics g = Graphics.FromImage(image))
-				{ 
-					g.DrawRectangle(Pens.White, selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
-					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent), selected.X, selected.Y, selected.Image.Width - 1, selected.Image.Height - 1);
-				}
-			}
-
-			string mapdir = Path.Combine(directory, name);
+			string mapdir = Path.Combine(directory, Name);
 			Directory.CreateDirectory(mapdir);
 			if (selected == null)
 			{
@@ -224,11 +239,26 @@ namespace SalemElderTileMerger
 				foreach (Tile tile in tiles)
 					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - selected.X) / tile.Image.Width, (tile.Y - selected.Y) / tile.Image.Height)), ImageFormat.Png);
 			}
+
+			try
+			{
+				using (Image i = new Bitmap(Width, Height))
+				{
+					using (Graphics g = Graphics.FromImage(i))
+						Draw(g, Width, Height, 0, false);
+
+					i.Save(Path.Combine(directory, Name + ".png"), ImageFormat.Png);
+				}
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show(string.Format("{0}\nWhole map can not be saved:\n\n{1}", Name, e.Message), "Error");
+			}
 		}
 
 		public override string ToString()
 		{
-			return string.Format("{0} [{1}] [{2}x{3}]", name, tiles.Count, image.Width, image.Height);
+			return string.Format("{0} [{1}] [{2}x{3}]", Name, tiles.Count, Width, Height);
 		}
 
 		public float X
@@ -241,15 +271,18 @@ namespace SalemElderTileMerger
 		}
 		public int Width
 		{
-			get { return image == null ? 0 : image.Width; }
+			get;
+			private set;
 		}
 		public int Height
 		{
-			get { return image == null ? 0 : image.Height; }
+			get;
+			private set;
 		}
 		public string Name
 		{
-			get { return name; }
+			get;
+			private set;
 		}
 		public bool CanMerge
 		{
