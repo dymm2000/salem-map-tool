@@ -14,7 +14,6 @@ namespace SalemElderTileMerger
 {
 	public partial class MainForm : Form
 	{
-		int mergeCounter = 1;
 		bool updating = false;
 
 		public MainForm()
@@ -160,7 +159,7 @@ namespace SalemElderTileMerger
 
 		private void toolStripMenuItemMerge_Click(object sender, EventArgs e)
 		{
-			Session session = new Session(string.Format("Merge {0}", mergeCounter++), listBoxSessions.SelectedItems);
+			Session session = new Session(string.Format("Merge {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now), listBoxSessions.SelectedItems);
 			if (session.Width != 0)
 			{
 				listBoxSessions.SelectedItems.Clear();
