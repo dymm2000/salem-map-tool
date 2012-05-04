@@ -38,6 +38,7 @@
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripMenuItemRemove = new System.Windows.Forms.ToolStripMenuItem();
 			this.pictureBox = new System.Windows.Forms.PictureBox();
+			this.contextMenuStripZoom = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.vScrollBar = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar = new System.Windows.Forms.HScrollBar();
 			this.contextMenuStripSessions.SuspendLayout();
@@ -111,6 +112,7 @@
 			// 
 			// pictureBox
 			// 
+			this.pictureBox.ContextMenuStrip = this.contextMenuStripZoom;
 			this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pictureBox.Location = new System.Drawing.Point(255, 0);
 			this.pictureBox.Name = "pictureBox";
@@ -120,6 +122,12 @@
 			this.pictureBox.Resize += new System.EventHandler(this.pictureBox_Resize);
 			this.pictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseClick);
 			this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+			// 
+			// contextMenuStripZoom
+			// 
+			this.contextMenuStripZoom.Name = "contextMenuStripZoom";
+			this.contextMenuStripZoom.Size = new System.Drawing.Size(153, 26);
+			this.contextMenuStripZoom.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripZoom_Opening);
 			// 
 			// vScrollBar
 			// 
@@ -169,6 +177,7 @@
 		private System.Windows.Forms.HScrollBar hScrollBar;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMerge;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStripZoom;
 	}
 }
 

@@ -102,12 +102,6 @@ namespace SalemElderTileMerger
 
 				pictureBox.Refresh();
 			}
-			else if (e.Button == MouseButtons.Right)
-			{
-				bool zoom = (listBoxSessions.SelectedItem as Session).Zoom();
-
-				pictureBox.Refresh();
-			}
 		}
 
 		private void toolStripMenuItemExport_Click(object sender, EventArgs e)
@@ -166,6 +160,58 @@ namespace SalemElderTileMerger
 				listBoxSessions.Items.Add(session);
 				listBoxSessions.SelectedItem = session;
 			}
+		}
+
+		private void toolStripMenuItemZoom_Click(object sender, EventArgs e)
+		{
+			(listBoxSessions.SelectedItem as Session).Zoom((int)(sender as ToolStripMenuItem).Tag);
+
+			pictureBox.Refresh();
+		}
+
+		private void contextMenuStripZoom_Opening(object sender, CancelEventArgs e)
+		{
+			if (listBoxSessions.SelectedItems.Count != 1)
+				return;
+
+			e.Cancel = true;
+			(listBoxSessions.SelectedItem as Session).Zoom(0);
+			pictureBox.Refresh();
+
+			//e.Cancel = false;
+			//int rank = Math.Max(0,
+			//    (int)Math.Ceiling(
+			//        Math.Log(Math.Max((listBoxSessions.SelectedItem as Session).Width / pictureBox.Width, (listBoxSessions.SelectedItem as Session).Height / pictureBox.Height), 5)));
+
+			//contextMenuStripZoom.Items.Clear();
+
+			//ToolStripMenuItem item;
+			//item = new ToolStripMenuItem();
+			//item.Click += toolStripMenuItemZoom_Click;
+			//item.Text = string.Format("Reset");
+			//item.Tag = 0;
+			//contextMenuStripZoom.Items.Add(item);
+
+			//for (int i = 1; i < rank; i++)
+			//{
+			//    if (i == 1)
+			//        contextMenuStripZoom.Items.Add(new ToolStripSeparator());
+
+			//    item = new ToolStripMenuItem();
+			//    item.Click += toolStripMenuItemZoom_Click;
+			//    item.Text = string.Format("1:{0}", Math.Pow(5, i));
+			//    item.Tag = (int)Math.Pow(5, i);
+
+			//    contextMenuStripZoom.Items.Add(item);
+			//}
+
+			//contextMenuStripZoom.Items.Add(new ToolStripSeparator());
+			
+			//item = new ToolStripMenuItem();
+			//item.Click += toolStripMenuItemZoom_Click;
+			//item.Text = "Full";
+			//item.Tag = -1;
+			//contextMenuStripZoom.Items.Add(item);
 		}
 	}
 }
