@@ -32,13 +32,12 @@
 			this.listBoxSessions = new System.Windows.Forms.ListBox();
 			this.contextMenuStripSessions = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripMenuItemImport = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItemEsport = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItemExport = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripMenuItemMerge = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripMenuItemRemove = new System.Windows.Forms.ToolStripMenuItem();
 			this.pictureBox = new System.Windows.Forms.PictureBox();
-			this.contextMenuStripZoom = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.vScrollBar = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar = new System.Windows.Forms.HScrollBar();
 			this.contextMenuStripSessions.SuspendLayout();
@@ -63,14 +62,14 @@
 			// 
 			this.contextMenuStripSessions.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItemImport,
-            this.toolStripMenuItemEsport,
+            this.toolStripMenuItemExport,
             this.toolStripSeparator1,
             this.toolStripMenuItemMerge,
             this.toolStripSeparator2,
             this.toolStripMenuItemRemove});
 			this.contextMenuStripSessions.Name = "contextMenuStrip1";
 			this.contextMenuStripSessions.Size = new System.Drawing.Size(157, 104);
-			this.contextMenuStripSessions.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+			this.contextMenuStripSessions.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
 			// 
 			// toolStripMenuItemImport
 			// 
@@ -79,12 +78,12 @@
 			this.toolStripMenuItemImport.Text = "Import session";
 			this.toolStripMenuItemImport.Click += new System.EventHandler(this.toolStripMenuItemImport_Click);
 			// 
-			// toolStripMenuItemEsport
+			// toolStripMenuItemExport
 			// 
-			this.toolStripMenuItemEsport.Name = "toolStripMenuItemEsport";
-			this.toolStripMenuItemEsport.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemEsport.Text = "Export session...";
-			this.toolStripMenuItemEsport.Click += new System.EventHandler(this.toolStripMenuItemExport_Click);
+			this.toolStripMenuItemExport.Name = "toolStripMenuItemExport";
+			this.toolStripMenuItemExport.Size = new System.Drawing.Size(156, 22);
+			this.toolStripMenuItemExport.Text = "Export session...";
+			this.toolStripMenuItemExport.Click += new System.EventHandler(this.toolStripMenuItemExport_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -112,22 +111,17 @@
 			// 
 			// pictureBox
 			// 
-			this.pictureBox.ContextMenuStrip = this.contextMenuStripZoom;
 			this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pictureBox.Location = new System.Drawing.Point(255, 0);
 			this.pictureBox.Name = "pictureBox";
 			this.pictureBox.Size = new System.Drawing.Size(494, 534);
 			this.pictureBox.TabIndex = 1;
 			this.pictureBox.TabStop = false;
+			this.pictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
 			this.pictureBox.Resize += new System.EventHandler(this.pictureBox_Resize);
-			this.pictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseClick);
-			this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
-			// 
-			// contextMenuStripZoom
-			// 
-			this.contextMenuStripZoom.Name = "contextMenuStripZoom";
-			this.contextMenuStripZoom.Size = new System.Drawing.Size(153, 26);
-			this.contextMenuStripZoom.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripZoom_Opening);
+			this.pictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
+			this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox_Paint);
+			this.pictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
 			// 
 			// vScrollBar
 			// 
@@ -172,12 +166,11 @@
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemImport;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemRemove;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemEsport;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExport;
 		private System.Windows.Forms.VScrollBar vScrollBar;
 		private System.Windows.Forms.HScrollBar hScrollBar;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMerge;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-		private System.Windows.Forms.ContextMenuStrip contextMenuStripZoom;
 	}
 }
 
