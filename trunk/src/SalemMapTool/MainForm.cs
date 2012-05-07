@@ -14,6 +14,8 @@ namespace SalemElderTileMerger
 {
 	public partial class MainForm : Form
 	{
+		Session selected = null;
+		bool updating = false;
 		int x0, y0, x, y;
 
 		public MainForm()
@@ -23,9 +25,30 @@ namespace SalemElderTileMerger
 			hScrollBar.Enabled = false;
 			vScrollBar.Enabled = false;
 
-			MouseWheel += new MouseEventHandler(pictureBox_MouseWheel);
 			pictureBox.MouseEnter += pictureBox_MouseEnter;
 			pictureBox.MouseWheel += pictureBox_MouseWheel;
+		}
+
+		void UpdateBars()
+		{ 
+			if (selected != null)
+			{
+				updating = true;
+
+				selected.SetFOV(pictureBox.Width, pictureBox.Height);
+
+				hScrollBar.LargeChange = selected.FOVWidth;
+				hScrollBar.SmallChange = hScrollBar.LargeChange / 4;
+				hScrollBar.Maximum = selected.Width;
+				hScrollBar.Value = selected.FOVLeft;
+
+				vScrollBar.LargeChange = selected.FOVHeight;
+				vScrollBar.SmallChange = vScrollBar.LargeChange / 4;
+				vScrollBar.Maximum = selected.Height;
+				vScrollBar.Value = selected.FOVTop;
+
+				updating = false;
+			}
 		}
 
 		private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
@@ -57,8 +80,8 @@ namespace SalemElderTileMerger
 					Cursor.Current = Cursors.WaitCursor;
 					try
 					{
-						Session session = new Session(Path.GetFileName(d.SelectedPath), d.SelectedPath);
-						if (session.Width != 0)
+						Session session = new Session(Path.GetFileName(d.SelectedPath));
+						if (session.Load(d.SelectedPath))
 						{
 							listBoxSessions.SelectedItems.Clear();
 							listBoxSessions.Items.Add(session);
@@ -67,8 +90,8 @@ namespace SalemElderTileMerger
 
 						foreach (string folder in Directory.GetDirectories(d.SelectedPath, "*", SearchOption.AllDirectories))
 						{
-							session = new Session(Path.GetFileName(folder), folder);
-							if (session.Width != 0)
+							session = new Session(Path.GetFileName(folder));
+							if (session.Load(folder))
 							{
 								listBoxSessions.SelectedItems.Clear();
 								listBoxSessions.Items.Add(session);
@@ -91,8 +114,8 @@ namespace SalemElderTileMerger
 			Cursor.Current = Cursors.WaitCursor;
 			try
 			{
-				Session session = new Session(string.Format("Merge {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now), listBoxSessions.SelectedItems);
-				if (session.Width != 0)
+				Session session = new Session(string.Format("Merge {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now));
+				if (session.Load(listBoxSessions.SelectedItems))
 				{
 					listBoxSessions.SelectedItems.Clear();
 					listBoxSessions.Items.Add(session);
@@ -127,57 +150,56 @@ namespace SalemElderTileMerger
 
 		private void listBoxSessions_SelectedValueChanged(object sender, EventArgs e)
 		{
-			hScrollBar.Enabled = listBoxSessions.SelectedItems.Count == 1;
-			vScrollBar.Enabled = listBoxSessions.SelectedItems.Count == 1;
+			selected = listBoxSessions.SelectedItems.Count == 1 ? listBoxSessions.SelectedItem as Session : null;
 
-			if (listBoxSessions.SelectedItems.Count != 1)
-				return;
+			hScrollBar.Enabled = selected != null;
+			vScrollBar.Enabled = selected != null;
 
-			hScrollBar.SmallChange = pictureBox.Width / 4;
-			hScrollBar.LargeChange = (int)(pictureBox.Width * (listBoxSessions.SelectedItem as Session).Zoom);
-			hScrollBar.Maximum = (listBoxSessions.SelectedItem as Session).Width;
-			hScrollBar.Value = Math.Max(hScrollBar.Minimum, Math.Min((int)((listBoxSessions.SelectedItem as Session).X * hScrollBar.Maximum), hScrollBar.Maximum - hScrollBar.LargeChange));
-
-			vScrollBar.SmallChange = pictureBox.Height / 4;
-			vScrollBar.LargeChange = (int)(pictureBox.Height * (listBoxSessions.SelectedItem as Session).Zoom);
-			vScrollBar.Maximum = (listBoxSessions.SelectedItem as Session).Height;
-			vScrollBar.Value = Math.Max(vScrollBar.Minimum, Math.Min((int)((listBoxSessions.SelectedItem as Session).Y * vScrollBar.Maximum), vScrollBar.Maximum - vScrollBar.LargeChange));
+			UpdateBars();
 			
 			pictureBox.Refresh();
 		}
 
-		private void scrollBar_ValueChanged(object sender, EventArgs e)
+		private void hScrollBar_ValueChanged(object sender, EventArgs e)
 		{
-			(listBoxSessions.SelectedItem as Session).X = hScrollBar.Value * 1f / hScrollBar.Maximum;
-			(listBoxSessions.SelectedItem as Session).Y = vScrollBar.Value * 1f / vScrollBar.Maximum;
+			if (selected == null || updating)
+				return;
+
+			selected.FOVLeft = hScrollBar.Value;
+
+			pictureBox.Refresh();
+		}
+		private void vScrollBar_ValueChanged(object sender, EventArgs e)
+		{
+			if (selected == null || updating)
+				return;
+
+			selected.FOVTop = vScrollBar.Value;
 
 			pictureBox.Refresh();
 		}
 		
 		private void pictureBox_Resize(object sender, EventArgs e)
 		{
-			if (listBoxSessions.SelectedItems.Count != 1)
+			if (selected == null || pictureBox.Width == 0 || pictureBox.Height == 0)
 				return;
 
-			hScrollBar.SmallChange = pictureBox.Width / 4;
-			hScrollBar.LargeChange = (int)(pictureBox.Width * (listBoxSessions.SelectedItem as Session).Zoom);
-			hScrollBar.Value = Math.Max(hScrollBar.Minimum, Math.Min((int)((listBoxSessions.SelectedItem as Session).X * hScrollBar.Maximum), hScrollBar.Maximum - hScrollBar.LargeChange));
+			selected.SetFOV(pictureBox.Width, pictureBox.Height);
 
-			vScrollBar.SmallChange = pictureBox.Height / 4;
-			vScrollBar.LargeChange = (int)(pictureBox.Height * (listBoxSessions.SelectedItem as Session).Zoom);
-			vScrollBar.Value = Math.Max(vScrollBar.Minimum, Math.Min((int)((listBoxSessions.SelectedItem as Session).Y * vScrollBar.Maximum), vScrollBar.Maximum - vScrollBar.LargeChange));
+			UpdateBars();
 			
 			pictureBox.Refresh();
 		}
 		private void pictureBox_Paint(object sender, PaintEventArgs e)
 		{
-			if (listBoxSessions.SelectedItems.Count == 1)
-				(listBoxSessions.SelectedItem as Session).Draw(e.Graphics, 
-					pictureBox.Width, pictureBox.Height);
+			if (selected == null)
+				e.Graphics.Clear(BackColor);
+			else
+				selected.Draw(e.Graphics);
 		}
 		private void pictureBox_MouseDown(object sender, MouseEventArgs e)
 		{
-			if (listBoxSessions.SelectedItems.Count != 1 || e.Button != MouseButtons.Left)
+			if (selected == null || e.Button != MouseButtons.Left)
 				return;
 
 			x0 = x = e.X;
@@ -185,26 +207,29 @@ namespace SalemElderTileMerger
 		}
 		private void pictureBox_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (listBoxSessions.SelectedItems.Count != 1 || e.Button != MouseButtons.Left)
+			if (selected == null || e.Button != MouseButtons.Left)
 				return;
 
 			if (Math.Abs(x0 - e.X) <= 1 && Math.Abs(y0 - e.Y) <= 1)
 			{
-				(listBoxSessions.SelectedItem as Session).Hit(e.X, e.Y, pictureBox.Width, pictureBox.Height);
+				selected.Hit(e.X, e.Y);
 
 				pictureBox.Refresh();
 			}
 		}
 		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (listBoxSessions.SelectedItems.Count != 1 || e.Button != MouseButtons.Left)
+			if (selected == null || e.Button != MouseButtons.Left)
 				return;
 
-			hScrollBar.Value = Math.Max(hScrollBar.Minimum, Math.Min(hScrollBar.Value + x - e.X, hScrollBar.Maximum - hScrollBar.LargeChange));
-			vScrollBar.Value = Math.Max(vScrollBar.Minimum, Math.Min(vScrollBar.Value + y - e.Y, vScrollBar.Maximum - vScrollBar.LargeChange));
+			selected.Move(e.X - x, e.Y - y);
 			
 			x = e.X;
 			y = e.Y;
+
+			UpdateBars();
+
+			pictureBox.Refresh();
 		}
 		private void pictureBox_MouseEnter(object sender, EventArgs e)
 		{
@@ -212,16 +237,12 @@ namespace SalemElderTileMerger
 		}
 		private void pictureBox_MouseWheel(object sender, MouseEventArgs e)
 		{
-			if (listBoxSessions.SelectedItems.Count != 1)
+			if (selected == null)
 				return;
 
-			(listBoxSessions.SelectedItem as Session).SetZoom(e.Delta, e.X, e.Y, pictureBox.Width, pictureBox.Height);
+			selected.SetZoom(e.Delta, e.X, e.Y);
 
-			hScrollBar.LargeChange = (int)(pictureBox.Width * (listBoxSessions.SelectedItem as Session).Zoom);
-			hScrollBar.Value = Math.Max(hScrollBar.Minimum, Math.Min((int)((listBoxSessions.SelectedItem as Session).X * hScrollBar.Maximum), hScrollBar.Maximum - hScrollBar.LargeChange));
-
-			vScrollBar.LargeChange = (int)(pictureBox.Height * (listBoxSessions.SelectedItem as Session).Zoom);
-			vScrollBar.Value = Math.Max(vScrollBar.Minimum, Math.Min((int)((listBoxSessions.SelectedItem as Session).Y * vScrollBar.Maximum), vScrollBar.Maximum - vScrollBar.LargeChange));
+			UpdateBars();
 
 			pictureBox.Refresh();
 		}
