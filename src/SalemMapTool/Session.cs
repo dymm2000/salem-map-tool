@@ -26,13 +26,22 @@ namespace SalemElderTileMerger
 		}
 
 		float zoom;
+		float zoomStep;
+		float zoomMin;
+		float zoomMax;
+		RectangleF r; // original map
+		RectangleF fov; // field of view
+		RectangleF p; // area of drawing
+		PointF p0; // origin of actual drawing
 		Tile selected = null;
 		List<Tile> tiles = new List<Tile>();
 
-		public Session(string name, string path)
-		{
+		public Session(string name)
+		{ 
 			Name = name;
-
+		}
+		public bool Load(string path)
+		{
 			int left = 0;
 			int right = 0;
 			int top = 0;
@@ -54,7 +63,7 @@ namespace SalemElderTileMerger
 			}
 
 			if (tiles.Count <= 12)
-				return;
+				return false;
 
 			foreach (Tile tile in tiles)
 			{
@@ -62,15 +71,12 @@ namespace SalemElderTileMerger
 				tile.Y -= top;
 			}
 
-			Width = right - left;
-			Height = bottom - top;
+			Init(right - left, bottom - top);
 
-			Init();
+			return true;
 		}
-		public Session(string name, IList sessions)
+		public bool Load(IList sessions)
 		{
-			Name = name;
-
 			int left = 0;
 			int right = 0;
 			int top = 0;
@@ -112,59 +118,24 @@ namespace SalemElderTileMerger
 				tile.Y -= top;
 			}
 
-			Width = right - left;
-			Height = bottom - top;
+			Init(right - left, bottom - top);
 
-			Init();
+			return true;
 		}
 
-		void Init()
+		void Init(int w, int h)
 		{
-			ZoomMin = 0.5f;
-			ZoomMax = 10;
+			zoomStep = 1.1f;
+			zoomMin = 0.5f;
+			zoomMax = Math.Max(1f, Math.Max(w / 1000f, h / 1000f));
+			zoom = zoomMax;
 
-			zoom = ZoomMax;
+			r = new RectangleF(0, 0, w, h);
 		}
-		void Draw(Graphics g, int w, int h, float zoom)
-		{
-			g.FillRectangle(Brushes.Blue, 0, 0, w, h);
-
-			RectangleF source = new RectangleF(X * Width, Y * Height, w * zoom, h * zoom);
-			RectangleF target = new RectangleF((w - Math.Min(w, Width / zoom)) / 2, (h - Math.Min(h, Height / zoom)) / 2, w, h);
-			
-			foreach (Tile tile in tiles)
-			{
-				if (!source.IntersectsWith(new RectangleF(tile.X, tile.Y, tile.Image.Width, tile.Image.Height)))
-					continue;
-
-				RectangleF tt = new RectangleF(target.Left + (tile.X - source.Left) / zoom, target.Top + (tile.Y - source.Top) / zoom, tile.Image.Width / zoom, tile.Image.Height / zoom);
-
-				g.DrawImage(tile.Image, tt, new RectangleF(0, 0, tile.Image.Width, tile.Image.Height), GraphicsUnit.Pixel);
-
-			}
-
-			if (selected != null)
-			{
-				RectangleF tt = new RectangleF(target.Left + (selected.X - source.Left) / zoom, target.Top + (selected.Y - source.Top) / zoom, selected.Image.Width / zoom, selected.Image.Height / zoom);
-				
-				if (zoom <= 5)
-				{
-					g.DrawRectangle(Pens.White, tt.Left, tt.Top, tt.Width - 1, tt.Height - 1);
-					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent),
-						tt.Left, tt.Top, tt.Width - 1, tt.Height - 1);
-				}
-				else
-				{ 
-					g.FillRectangle(Brushes.White, tt.Left, tt.Top, tt.Width - 1, tt.Height - 1);
-				}
-			}
-		}
-		Tile Find(int x, int y, int w, int h)
+		Tile Find(int x, int y)
 		{ 
-			float x0 = (w - Math.Min(w, Width / zoom)) / 2;
-			float y0 = (h - Math.Min(h, Height / zoom)) / 2;
-			float xx = X * Width + (x - x0) * zoom;
-			float yy = Y * Height + (y - y0) * zoom;
+			float xx = fov.Left + (x - p0.X) * zoom;
+			float yy = fov.Top + (y - p0.Y) * zoom;
 
 			foreach (Tile tile in tiles)
 				if (new RectangleF(tile.X, tile.Y, tile.Image.Width, tile.Image.Height).Contains(xx, yy))
@@ -173,19 +144,80 @@ namespace SalemElderTileMerger
 			return null;
 		}
 
-		public void Hit(int x, int y, int w, int h)
+		public void Hit(int x, int y)
 		{
-			Tile hit = Find(x, y, w, h);
+			Tile hit = Find(x, y);
 
 			selected = hit != null && selected == hit ? null : hit;
 		}
-		public void SetZoom(int delta, int x, int y, int w, int h)
+		public void SetFOV(int w, int h)
 		{
-			zoom = Math.Max(ZoomMin, Math.Min((float)Math.Round(zoom * (delta < 0 ? 1.1f : 0.9f), 1), ZoomMax));
+			p = new RectangleF(0, 0, w, h);
+
+			float w0 = Math.Min(w, r.Width / zoom);
+			float h0 = Math.Min(h, r.Height / zoom);
+
+			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
+
+			fov = new RectangleF(
+				Math.Max(0, Math.Min(fov.Left, r.Right - w0 * zoom)), 
+				Math.Max(0, Math.Min(fov.Top, r.Bottom - h0 * zoom)), 
+				w0 * zoom, h0 * zoom);
 		}
-		public void Draw(Graphics g, int w, int h)
+		public void SetZoom(int delta, int x, int y)
 		{
-			Draw(g, w, h, zoom);
+			float xx = fov.Left + (x - p0.X) * zoom;
+			float yy = fov.Top + (y - p0.Y) * zoom;
+
+			zoom = Math.Max(zoomMin, Math.Min((float)Math.Round(zoom * (delta < 0 ? zoomStep : 1 / zoomStep), 1), zoomMax));
+
+			float w0 = Math.Min(p.Width, r.Width / zoom);
+			float h0 = Math.Min(p.Height, r.Height / zoom);
+
+			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
+
+			this.fov = new RectangleF(
+				Math.Max(0, Math.Min(xx - (x - p0.X) * zoom, r.Right - w0 * zoom)), 
+				Math.Max(0, Math.Min(yy - (y - p0.Y) * zoom, r.Bottom - h0 * zoom)), 
+				w0 * zoom, h0 * zoom);
+		}
+		public void Move(int x, int y)
+		{ 
+			fov = new RectangleF(
+				Math.Max(0, Math.Min(fov.Left - x * zoom, r.Right - fov.Width)), 
+				Math.Max(0, Math.Min(fov.Top - y * zoom, r.Bottom - fov.Height)), 
+				fov.Width, fov.Height);
+		}
+		public void Draw(Graphics g)
+		{
+			g.FillRectangle(Brushes.Blue, p);
+
+			foreach (Tile tile in tiles)
+			{
+				if (!fov.IntersectsWith(new RectangleF(tile.X, tile.Y, tile.Image.Width, tile.Image.Height)))
+					continue;
+
+				RectangleF dest = new RectangleF(p0.X + (tile.X - fov.Left) / zoom, p0.Y + (tile.Y - fov.Top) / zoom, tile.Image.Width / zoom, tile.Image.Height / zoom);
+
+				g.DrawImage(tile.Image, dest, new RectangleF(0, 0, tile.Image.Width, tile.Image.Height), GraphicsUnit.Pixel);
+
+			}
+
+			if (selected != null)
+			{
+				RectangleF dest = new RectangleF(p0.X + (selected.X - fov.Left) / zoom, p0.Y + (selected.Y - fov.Top) / zoom, selected.Image.Width / zoom, selected.Image.Height / zoom);
+
+				if (zoom <= 5)
+				{
+					g.DrawRectangle(Pens.White, dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
+					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent),
+						dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
+				}
+				else
+				{
+					g.FillRectangle(Brushes.White, dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
+				}
+			}
 		}
 		public void Save(string directory)
 		{
@@ -204,7 +236,7 @@ namespace SalemElderTileMerger
 
 			try
 			{
-				using (Image i = new Bitmap(Width, Height))
+				using (Image i = new Bitmap((int)r.Width, (int)r.Height))
 				{
 					using (Graphics g = Graphics.FromImage(i))
 						foreach (Tile tile in tiles)
@@ -221,38 +253,34 @@ namespace SalemElderTileMerger
 
 		public override string ToString()
 		{
-			return string.Format("{0} [{1}] [{2}x{3}]", Name, tiles.Count, Width, Height);
+			return string.Format("{0} [{1}] [{2}x{3}]", Name, tiles.Count, r.Width, r.Height);
 		}
 
-		public float X
-		{
-			get; set;
-		}
-		public float Y
-		{
-			get; set;
-		}
 		public int Width
 		{
-			get;
-			private set;
+			get { return (int)r.Width; }
 		}
 		public int Height
 		{
-			get;
-			private set;
+			get { return (int)r.Height; }
 		}
-		public float Zoom
+		public int FOVLeft
 		{
-			get { return zoom; }
+			get { return (int)fov.Left; }
+			set { fov = new RectangleF(Math.Max(0, Math.Min(value, r.Right - fov.Width)), fov.Top, fov.Width, fov.Height); }
 		}
-		public float ZoomMin
+		public int FOVTop
 		{
-			get; private set;
+			get { return (int)fov.Top; }
+			set { fov = new RectangleF(fov.Left, Math.Max(0, Math.Min(value, r.Bottom - fov.Height)), fov.Width, fov.Height); }
 		}
-		public float ZoomMax
+		public int FOVWidth
 		{
-			get; private set;
+			get { return (int)fov.Width; }
+		}
+		public int FOVHeight
+		{
+			get { return (int)fov.Height; }
 		}
 		public string Name
 		{

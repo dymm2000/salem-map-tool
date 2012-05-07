@@ -130,7 +130,7 @@
 			this.vScrollBar.Name = "vScrollBar";
 			this.vScrollBar.Size = new System.Drawing.Size(16, 550);
 			this.vScrollBar.TabIndex = 2;
-			this.vScrollBar.ValueChanged += new System.EventHandler(this.scrollBar_ValueChanged);
+			this.vScrollBar.ValueChanged += new System.EventHandler(this.vScrollBar_ValueChanged);
 			// 
 			// hScrollBar
 			// 
@@ -139,7 +139,7 @@
 			this.hScrollBar.Name = "hScrollBar";
 			this.hScrollBar.Size = new System.Drawing.Size(494, 16);
 			this.hScrollBar.TabIndex = 3;
-			this.hScrollBar.ValueChanged += new System.EventHandler(this.scrollBar_ValueChanged);
+			this.hScrollBar.ValueChanged += new System.EventHandler(this.hScrollBar_ValueChanged);
 			// 
 			// MainForm
 			// 
