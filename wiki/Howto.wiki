@@ -28,7 +28,6 @@ Now the sessions list is filled.
 You can zoom in/out with mouse wheel and drag with left button.
 
 http://salem-map-tool.googlecode.com/files/screenSession.png
-http://salem-map-tool.googlecode.com/files/screenSessionZoom.png
 
 For merging two or more session with common tile select this tile on each session image (not zoomed) by left click
 
