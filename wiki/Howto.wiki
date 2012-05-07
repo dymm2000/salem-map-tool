@@ -23,7 +23,9 @@ Import session(s)
 http://salem-map-tool.googlecode.com/files/screenImportMenu.png
 http://salem-map-tool.googlecode.com/files/screenImportDialog.png
 
-Now the sessions list is filled. You can see whole map of the session and switch zoom by right click on the image.
+Now the sessions list is filled. 
+
+You can zoom in/out with mouse wheel and drag with left button.
 
 http://salem-map-tool.googlecode.com/files/screenSession.png
 http://salem-map-tool.googlecode.com/files/screenSessionZoom.png
@@ -50,7 +52,7 @@ It's important to save merge result, so you can load it in the future and use fo
 http://salem-map-tool.googlecode.com/files/screenExportMenu.png
 http://salem-map-tool.googlecode.com/files/screenExportDialog.png
 
-When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one.
+When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one. Also you can use it together with Google API scripts.
 
 
 Selected tile will be saved as origin, i.e. "tile_0_0.png"
