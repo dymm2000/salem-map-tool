@@ -41,6 +41,8 @@
 			this.vScrollBar = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar = new System.Windows.Forms.HScrollBar();
 			this.trackBarZoom = new System.Windows.Forms.TrackBar();
+			this.toolStripMenuItemCrop = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItemCut = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStripSessions.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).BeginInit();
@@ -67,10 +69,12 @@
             this.toolStripMenuItemExport,
             this.toolStripSeparator1,
             this.toolStripMenuItemMerge,
+            this.toolStripMenuItemCrop,
+            this.toolStripMenuItemCut,
             this.toolStripSeparator2,
             this.toolStripMenuItemRemove});
 			this.contextMenuStripSessions.Name = "contextMenuStrip1";
-			this.contextMenuStripSessions.Size = new System.Drawing.Size(157, 104);
+			this.contextMenuStripSessions.Size = new System.Drawing.Size(157, 170);
 			this.contextMenuStripSessions.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
 			// 
 			// toolStripMenuItemImport
@@ -154,6 +158,20 @@
 			this.trackBarZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
 			this.trackBarZoom.Scroll += new System.EventHandler(this.trackBarZoom_Scroll);
 			// 
+			// toolStripMenuItemCrop
+			// 
+			this.toolStripMenuItemCrop.Name = "toolStripMenuItemCrop";
+			this.toolStripMenuItemCrop.Size = new System.Drawing.Size(156, 22);
+			this.toolStripMenuItemCrop.Text = "Crop";
+			this.toolStripMenuItemCrop.Click += new System.EventHandler(this.toolStripMenuItemCrop_Click);
+			// 
+			// toolStripMenuItemCut
+			// 
+			this.toolStripMenuItemCut.Name = "toolStripMenuItemCut";
+			this.toolStripMenuItemCut.Size = new System.Drawing.Size(156, 22);
+			this.toolStripMenuItemCut.Text = "Cut";
+			this.toolStripMenuItemCut.Click += new System.EventHandler(this.toolStripMenuItemCut_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -188,6 +206,8 @@
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMerge;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.TrackBar trackBarZoom;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCrop;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCut;
 	}
 }
 
