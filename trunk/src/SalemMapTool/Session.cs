@@ -49,6 +49,8 @@ namespace SalemElderTileMerger
 			}
 		}
 
+		int tileSize = 100;
+
 		int izoom;
 		float zoom;
 		Array zooms;
@@ -56,7 +58,10 @@ namespace SalemElderTileMerger
 		RectangleF fov; // field of view
 		RectangleF p; // area of drawing
 		PointF p0; // origin of actual drawing
-		Tile selected = null;
+		PointF s0; // selection start
+		Tile chosen = null;
+		bool selecting = false;
+		RectangleF selection;
 		List<Tile> tiles = new List<Tile>();
 
 		public Session(string name)
@@ -74,8 +79,8 @@ namespace SalemElderTileMerger
 				string[] p = Path.GetFileNameWithoutExtension(f).Split('_');
 				Tile tile = new Tile(File.ReadAllBytes(f));
 				//tile.Image = Image.FromFile(f);
-				tile.Width = 100;
-				tile.Height = 100;
+				tile.Width = tileSize;
+				tile.Height = tileSize;
 				tile.X = int.Parse(p[1]) * tile.Width;
 				tile.Y = int.Parse(p[2]) * tile.Height;
 
@@ -113,8 +118,8 @@ namespace SalemElderTileMerger
 					Tile clone = new Tile(tile)
 					{
 						//clone.Image = tile.Image;
-						X = tile.X - session.selected.X,
-						Y = tile.Y - session.selected.Y
+						X = tile.X - session.chosen.X,
+						Y = tile.Y - session.chosen.Y
 					};
 
 					bool dup = false;
@@ -134,8 +139,8 @@ namespace SalemElderTileMerger
 					top = Math.Min(top, clone.Y);
 					bottom = Math.Max(bottom, clone.Y + tile.Height);
 
-					if (tile == session.selected)
-						selected = clone;
+					if (tile == session.chosen)
+						chosen = clone;
 				}
 			}
 
@@ -167,6 +172,7 @@ namespace SalemElderTileMerger
 			zoom = (float)zooms.GetValue(izoom);
 
 			r = new RectangleF(0, 0, w, h);
+			selection = r;
 		}
 		Tile Find(int x, int y)
 		{ 
@@ -180,11 +186,35 @@ namespace SalemElderTileMerger
 			return null;
 		}
 
-		public void Hit(int x, int y)
+		public void StartSelect(int x, int y)
+		{
+			selecting = true;
+
+			float xx = fov.Left + (x - p0.X) / zoom;
+			float yy = fov.Top + (y - p0.Y) / zoom;
+
+			if (!r.Contains(xx, yy))
+			{
+				selecting = false;
+				return;
+			}
+
+			s0 = new PointF(xx, yy);
+
+			selection = new RectangleF(xx, yy, 0, 0);
+		}
+		public void EndSelect(int x, int y, bool cancel)
+		{ 
+			selecting = false;
+
+			if (cancel)
+				selection = r;
+		}
+		public void Choose(int x, int y)
 		{
 			Tile hit = Find(x, y);
 
-			selected = hit != null && selected == hit ? null : hit;
+			chosen = hit != null && chosen == hit ? null : hit;
 		}
 		public void SetFOV(int w, int h)
 		{
@@ -213,22 +243,39 @@ namespace SalemElderTileMerger
 
 			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
 
-			this.fov = new RectangleF(
+			fov = new RectangleF(
 				Math.Max(0, Math.Min(xx - (x - p0.X) / zoom, r.Right - w0 / zoom)),
 				Math.Max(0, Math.Min(yy - (y - p0.Y) / zoom, r.Bottom - h0 / zoom)),
 				w0 / zoom, h0 / zoom);
 		}
 		public void Move(int x, int y)
 		{ 
-			fov = new RectangleF(
-				Math.Max(0, Math.Min(fov.Left - x / zoom, r.Right - fov.Width)),
-				Math.Max(0, Math.Min(fov.Top - y / zoom, r.Bottom - fov.Height)), 
-				fov.Width, fov.Height);
+			if (selecting)
+			{
+				float xx = fov.Left + (x - p0.X) / zoom;
+				float yy = fov.Top + (y - p0.Y) / zoom;
+
+				selection = new RectangleF(xx > s0.X ? s0.X : xx, 
+					yy > s0.Y ? s0.Y : yy,
+					Math.Abs(xx - s0.X), Math.Abs(yy - s0.Y));
+
+				selection = new RectangleF((float)Math.Floor(selection.Left / tileSize) * tileSize,
+					(float)Math.Floor(selection.Top / tileSize) * tileSize,
+					(float)(Math.Ceiling(selection.Right / tileSize) - Math.Floor(selection.Left / tileSize)) * tileSize, 
+					(float)(Math.Ceiling(selection.Bottom / tileSize) - Math.Floor(selection.Top / tileSize)) * tileSize);
+
+				selection.Intersect(r);
+			}
+			else 
+			{
+				fov = new RectangleF(
+					Math.Max(0, Math.Min(fov.Left - x / zoom, r.Right - fov.Width)),
+					Math.Max(0, Math.Min(fov.Top - y / zoom, r.Bottom - fov.Height)), 
+					fov.Width, fov.Height);
+			}
 		}
 		public void Draw(Graphics g)
 		{
-			//g.FillRectangle(Brushes.Blue, p);
-
 			foreach (Tile tile in tiles)
 			{
 				if (!fov.IntersectsWith(new RectangleF(tile.X, tile.Y, tile.Width, tile.Height)))
@@ -237,14 +284,13 @@ namespace SalemElderTileMerger
 				RectangleF dest = new RectangleF(p0.X + (tile.X - fov.Left) * zoom, p0.Y + (tile.Y - fov.Top) * zoom, tile.Width * zoom, tile.Height * zoom);
 
 				g.DrawImage(tile.Image, dest, new RectangleF(0, 0, tile.Width, tile.Height), GraphicsUnit.Pixel);
-
 			}
 
-			if (selected != null)
+			if (chosen != null)
 			{
-				RectangleF dest = new RectangleF(p0.X + (selected.X - fov.Left) * zoom, 
-					p0.Y + (selected.Y - fov.Top) * zoom, 
-					selected.Width * zoom, selected.Height * zoom);
+				RectangleF dest = new RectangleF(p0.X + (chosen.X - fov.Left) * zoom, 
+					p0.Y + (chosen.Y - fov.Top) * zoom, 
+					chosen.Width * zoom, chosen.Height * zoom);
 
 				if (zoom > 0.2)
 				{
@@ -257,12 +303,18 @@ namespace SalemElderTileMerger
 					g.FillRectangle(Brushes.White, dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
 				}
 			}
+
+			if (selection.Width != r.Width || selection.Height != r.Height)
+				g.DrawRectangle(new Pen(Brushes.Yellow, 3),
+					p0.X + (selection.Left - fov.Left) * zoom,
+					p0.Y + (selection.Top - fov.Top) * zoom,
+					selection.Width * zoom - 1, selection.Height * zoom - 1);
 		}
 		public void Save(string directory)
 		{
 			string mapdir = Path.Combine(directory, Name);
 			Directory.CreateDirectory(mapdir);
-			if (selected == null)
+			if (chosen == null)
 			{
 				foreach (Tile tile in tiles)
 					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.X / tile.Width, tile.Y / tile.Height)), ImageFormat.Png);
@@ -270,7 +322,7 @@ namespace SalemElderTileMerger
 			else
 			{ 
 				foreach (Tile tile in tiles)
-					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - selected.X) / tile.Width, (tile.Y - selected.Y) / tile.Height)), ImageFormat.Png);
+					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height)), ImageFormat.Png);
 			}
 
 			try
@@ -340,7 +392,7 @@ namespace SalemElderTileMerger
 		}
 		public bool CanMerge
 		{
-			get { return selected != null; }
+			get { return chosen != null; }
 		}
 	}
 }
