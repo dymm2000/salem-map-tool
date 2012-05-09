@@ -118,6 +118,8 @@ namespace SalemElderTileMerger
 		private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
 		{
 			toolStripMenuItemExport.Enabled = listBoxSessions.SelectedItem != null;
+			toolStripMenuItemCut.Enabled = listBoxSessions.SelectedItem != null;
+			toolStripMenuItemCrop.Enabled = listBoxSessions.SelectedItem != null;
 			toolStripMenuItemRemove.Enabled = listBoxSessions.SelectedItem != null;
 			
 			toolStripMenuItemMerge.Enabled = listBoxSessions.SelectedItems.Count > 1;
@@ -211,6 +213,42 @@ namespace SalemElderTileMerger
 				}
 			}
 		}
+		private void toolStripMenuItemCrop_Click(object sender, EventArgs e)
+		{
+			Cursor.Current = Cursors.WaitCursor;
+			try
+			{
+				Session session = new Session(string.Format("Crop {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now));
+				if (session.Load(selected, Session.Inheritance.Crop))
+				{
+					listBoxSessions.SelectedItems.Clear();
+					listBoxSessions.Items.Add(session);
+					listBoxSessions.SelectedItem = session;
+				}
+			}
+			finally
+			{
+				Cursor.Current = Cursors.Default;
+			}
+		}
+		private void toolStripMenuItemCut_Click(object sender, EventArgs e)
+		{
+			Cursor.Current = Cursors.WaitCursor;
+			try
+			{
+				Session session = new Session(string.Format("Cut {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now));
+				if (session.Load(selected, Session.Inheritance.Cut))
+				{
+					listBoxSessions.SelectedItems.Clear();
+					listBoxSessions.Items.Add(session);
+					listBoxSessions.SelectedItem = session;
+				}
+			}
+			finally
+			{
+				Cursor.Current = Cursors.Default;
+			}
+		}
 
 		private void listBoxSessions_SelectedValueChanged(object sender, EventArgs e)
 		{
@@ -295,7 +333,7 @@ namespace SalemElderTileMerger
 
 			if (shftPressed)
 			{
-				selected.EndSelect(e.X, e.Y, Math.Abs(x0 - e.X) <= 1 && Math.Abs(y0 - e.Y) <= 1);
+				selected.EndSelect(Math.Abs(x0 - e.X) <= 1 && Math.Abs(y0 - e.Y) <= 1);
 
 				pictureBox.Refresh();
 			}

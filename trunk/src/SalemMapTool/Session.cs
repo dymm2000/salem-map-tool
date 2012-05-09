@@ -13,6 +13,12 @@ namespace SalemElderTileMerger
 {
 	public class Session
 	{
+		public enum Inheritance
+		{
+			Crop,
+			Cut
+		}
+
 		class Tile
 		{
 			byte[] bytes;
@@ -70,10 +76,10 @@ namespace SalemElderTileMerger
 		}
 		public bool Load(string path)
 		{
-			int left = 0;
-			int right = 0;
-			int top = 0;
-			int bottom = 0;
+			int left = int.MaxValue;
+			int right = int.MinValue;
+			int top = int.MaxValue;
+			int bottom = int.MinValue;
 			foreach (string f in Directory.GetFiles(path, "tile_*.png"))
 			{
 				string[] p = Path.GetFileNameWithoutExtension(f).Split('_');
@@ -97,6 +103,9 @@ namespace SalemElderTileMerger
 
 			foreach (Tile tile in tiles)
 			{
+				if (tile.X == 0 && tile.Y == 0)
+					chosen = tile;
+
 				tile.X -= left;
 				tile.Y -= top;
 			}
@@ -107,10 +116,10 @@ namespace SalemElderTileMerger
 		}
 		public bool Load(IList sessions)
 		{
-			int left = 0;
-			int right = 0;
-			int top = 0;
-			int bottom = 0;
+			int left = int.MaxValue;
+			int right = int.MinValue;
+			int top = int.MaxValue;
+			int bottom = int.MinValue;
 			foreach (Session session in sessions)
 			{
 				foreach (Tile tile in session.tiles)
@@ -153,6 +162,40 @@ namespace SalemElderTileMerger
 			Init(right - left, bottom - top);
 
 			return true;
+		}
+		public bool Load(Session session, Inheritance inheritance)
+		{
+			int left = int.MaxValue;
+			int right = int.MinValue;
+			int top = int.MaxValue;
+			int bottom = int.MinValue;
+			foreach (Tile tile in session.tiles)
+			{
+				if (session.selection.Contains(tile.X, tile.Y) ^ inheritance == Inheritance.Crop)
+					continue;
+
+				Tile clone = new Tile(tile);
+
+				tiles.Add(clone);
+
+				left = Math.Min(left, clone.X);
+				right = Math.Max(right, clone.X + tile.Width);
+				top = Math.Min(top, clone.Y);
+				bottom = Math.Max(bottom, clone.Y + tile.Height);
+
+				if (tile == session.chosen)
+					chosen = clone;
+			}
+
+			foreach (Tile tile in tiles)
+			{ 
+				tile.X -= left;
+				tile.Y -= top;
+			}
+
+			Init(right - left, bottom - top);
+
+			return tiles.Count > 0;
 		}
 
 		void Init(int w, int h)
@@ -203,7 +246,7 @@ namespace SalemElderTileMerger
 
 			selection = new RectangleF(xx, yy, 0, 0);
 		}
-		public void EndSelect(int x, int y, bool cancel)
+		public void EndSelect(bool cancel)
 		{ 
 			selecting = false;
 
