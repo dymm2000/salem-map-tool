@@ -40,8 +40,10 @@
 			this.pictureBox = new System.Windows.Forms.PictureBox();
 			this.vScrollBar = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar = new System.Windows.Forms.HScrollBar();
+			this.trackBarZoom = new System.Windows.Forms.TrackBar();
 			this.contextMenuStripSessions.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// listBoxSessions
@@ -141,11 +143,23 @@
 			this.hScrollBar.TabIndex = 3;
 			this.hScrollBar.ValueChanged += new System.EventHandler(this.hScrollBar_ValueChanged);
 			// 
+			// trackBarZoom
+			// 
+			this.trackBarZoom.Location = new System.Drawing.Point(270, 12);
+			this.trackBarZoom.Name = "trackBarZoom";
+			this.trackBarZoom.Orientation = System.Windows.Forms.Orientation.Vertical;
+			this.trackBarZoom.Size = new System.Drawing.Size(42, 104);
+			this.trackBarZoom.TabIndex = 4;
+			this.trackBarZoom.TabStop = false;
+			this.trackBarZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
+			this.trackBarZoom.Scroll += new System.EventHandler(this.trackBarZoom_Scroll);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(765, 550);
+			this.Controls.Add(this.trackBarZoom);
 			this.Controls.Add(this.pictureBox);
 			this.Controls.Add(this.hScrollBar);
 			this.Controls.Add(this.vScrollBar);
@@ -154,7 +168,9 @@
 			this.Text = "Salem Map Tool";
 			this.contextMenuStripSessions.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).EndInit();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -171,6 +187,7 @@
 		private System.Windows.Forms.HScrollBar hScrollBar;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMerge;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+		private System.Windows.Forms.TrackBar trackBarZoom;
 	}
 }
 
