@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Drawing.Imaging;
 using System.Configuration;
 using System.Globalization;
+using System.Collections;
 
 namespace SalemElderTileMerger
 {
@@ -19,28 +20,72 @@ namespace SalemElderTileMerger
 		Session selected = null;
 		bool updating = false;
 		int x0, y0, x, y;
-		string importDir;
-		string exportDir;
+		Hashtable parameters = new Hashtable();
 
-		public MainForm()
+		const string s_backColor = "backcolor";
+		const string s_importDir = "importdir";
+		const string s_exportDir = "exportdir";
+		const string s_userprofile = "userprofile";
+
+		public MainForm(string[] args)
 		{
+			ReadParameters(args);
+
 			InitializeComponent();
 
 			hScrollBar.Enabled = false;
 			vScrollBar.Enabled = false;
 			trackBarZoom.Visible = false;
 
-			uint bc; 
-			if (!uint.TryParse(ConfigurationManager.AppSettings["backColor"], NumberStyles.HexNumber, null, out bc))
-				bc = 0x4040ff;
-			pictureBox.BackColor = Color.FromArgb((int)(0xff000000 | bc));
+			pictureBox.BackColor = (Color)parameters[s_backColor];
 			pictureBox.MouseEnter += pictureBox_MouseEnter;
 			pictureBox.MouseWheel += pictureBox_MouseWheel;
 
-			importDir = ConfigurationManager.AppSettings["importDir"].ToLower().Replace("%userprofile%", Environment.GetEnvironmentVariable("userprofile"));
-			exportDir = ConfigurationManager.AppSettings["exportDir"].ToLower().Replace("%userprofile%", Environment.GetEnvironmentVariable("userprofile"));
 		}
 
+		void ReadParameters(string[] args)
+		{
+			string value;
+			string userprofile = Environment.GetEnvironmentVariable(s_userprofile);
+ 
+			uint bc; 
+			value = ConfigurationManager.AppSettings[s_backColor];
+			if (!uint.TryParse(value, NumberStyles.HexNumber, null, out bc))
+				bc = 0x4040ff;
+			parameters[s_backColor] = Color.FromArgb((int)(0xff000000 | bc));
+
+			value = ConfigurationManager.AppSettings[s_importDir];
+			parameters[s_importDir] = value == null ? userprofile : value.ToLower().Replace(string.Format("%{0}%", s_userprofile), userprofile);
+			
+			value = ConfigurationManager.AppSettings[s_exportDir];
+			parameters[s_exportDir] = value == null ? userprofile : value.ToLower().Replace(string.Format("%{0}%", s_userprofile), userprofile);
+
+			foreach (string a in args)
+			{ 
+				string[] s = a.ToLower().
+					Replace("'", "").
+					Replace("\"", "").
+					Replace(string.Format("%{0}%", s_userprofile), userprofile).
+					Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+
+				if (s.Length != 2)
+					continue;
+
+				if (s[0] == s_backColor)
+				{ 
+					if (uint.TryParse(s[1], NumberStyles.HexNumber, null, out bc))
+						parameters[s_backColor] = Color.FromArgb((int)(0xff000000 | bc));
+				}
+				else if (s[0] == s_importDir)
+				{
+					parameters[s_importDir] = s[1];
+				}
+				else if (s[0] == s_exportDir)
+				{
+					parameters[s_exportDir] = s[1];
+				}
+			}
+		}
 		void UpdateBars()
 		{ 
 			if (selected != null)
@@ -76,19 +121,11 @@ namespace SalemElderTileMerger
 			foreach (Session session in listBoxSessions.SelectedItems)
 				toolStripMenuItemMerge.Enabled &= session.CanMerge;
 		}
-		private void toolStripMenuItemRemove_Click(object sender, EventArgs e)
-		{
-			List<Session> selected = new List<Session>();
-			foreach (Session session in listBoxSessions.SelectedItems)
-				selected.Add(session);
-			foreach (Session session in selected)
-				listBoxSessions.Items.Remove(session);
-		}
 		private void toolStripMenuItemImport_Click(object sender, EventArgs e)
 		{
 			using (FolderBrowserDialog d = new FolderBrowserDialog())
 			{
-				d.SelectedPath = importDir;
+				d.SelectedPath = (string)parameters[s_importDir];
 				if (d.ShowDialog() == DialogResult.OK)
 				{
 					object selected = listBoxSessions.SelectedItem;
@@ -125,6 +162,14 @@ namespace SalemElderTileMerger
 				}
 			}
 		}
+		private void toolStripMenuItemRemove_Click(object sender, EventArgs e)
+		{
+			List<Session> selected = new List<Session>();
+			foreach (Session session in listBoxSessions.SelectedItems)
+				selected.Add(session);
+			foreach (Session session in selected)
+				listBoxSessions.Items.Remove(session);
+		}
 		private void toolStripMenuItemMerge_Click(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
@@ -147,7 +192,7 @@ namespace SalemElderTileMerger
 		{
 			using (FolderBrowserDialog d = new FolderBrowserDialog())
 			{
-				d.SelectedPath = exportDir;
+				d.SelectedPath = (string)parameters[s_exportDir];
 				if (d.ShowDialog() == DialogResult.OK)
 				{
 					Cursor.Current = Cursors.WaitCursor;
