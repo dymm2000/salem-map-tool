@@ -49,8 +49,9 @@ namespace SalemElderTileMerger
 			}
 		}
 
-		int zoom;
-		float[] zooms;
+		int izoom;
+		float zoom;
+		Array zooms;
 		RectangleF r; // original map
 		RectangleF fov; // field of view
 		RectangleF p; // area of drawing
@@ -151,22 +152,26 @@ namespace SalemElderTileMerger
 
 		void Init(int w, int h)
 		{
-			float zoomStep = 1.25f;
-			float zoomMin = 0.5f;
-			float zoomMax = Math.Max(1f, Math.Max(w / 1000f, h / 1000f));
-			zooms = new float[(int)Math.Log(zoomMax, zoomStep) + 1];
-			for (int i = 0; i < zooms.Length - 2; i++)
-				zooms[i] = (float)Math.Pow(zoomStep, zooms.Length - 1 - i);
-			zooms[zooms.Length - 2] = 1;
-			zooms[zooms.Length - 1] = zoomMin;
-			zoom = 0;
+			float zoomStep = (float)Math.Sqrt(2);
+			float zoomMax = 2;
+			float zoomMin = Math.Min(1f, Math.Min(1000f / w, 1000f / h));
+
+			zooms = Array.CreateInstance(typeof(float), 
+				new int[] { 1 + (int)Math.Ceiling(Math.Log(zoomMax, zoomStep)) - (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) },
+				new int[] { (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) });
+			
+			for (int i = ZoomMin; i <= ZoomMax; i++)
+				zooms.SetValue((float)Math.Pow(zoomStep, i), i);
+			
+			izoom = ZoomMin;
+			zoom = (float)zooms.GetValue(izoom);
 
 			r = new RectangleF(0, 0, w, h);
 		}
 		Tile Find(int x, int y)
 		{ 
-			float xx = fov.Left + (x - p0.X) * zooms[zoom];
-			float yy = fov.Top + (y - p0.Y) * zooms[zoom];
+			float xx = fov.Left + (x - p0.X) / zoom;
+			float yy = fov.Top + (y - p0.Y) / zoom;
 
 			foreach (Tile tile in tiles)
 				if (new RectangleF(tile.X, tile.Y, tile.Width, tile.Height).Contains(xx, yy))
@@ -185,38 +190,39 @@ namespace SalemElderTileMerger
 		{
 			p = new RectangleF(0, 0, w, h);
 
-			float w0 = Math.Min(w, r.Width / zooms[zoom]);
-			float h0 = Math.Min(h, r.Height / zooms[zoom]);
+			float w0 = Math.Min(w, r.Width * zoom);
+			float h0 = Math.Min(h, r.Height * zoom);
 
 			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
 
 			fov = new RectangleF(
-				Math.Max(0, Math.Min(fov.Left, r.Right - w0 * zooms[zoom])),
-				Math.Max(0, Math.Min(fov.Top, r.Bottom - h0 * zooms[zoom])),
-				w0 * zooms[zoom], h0 * zooms[zoom]);
+				Math.Max(0, Math.Min(fov.Left, r.Right - w0 / zoom)),
+				Math.Max(0, Math.Min(fov.Top, r.Bottom - h0 / zoom)),
+				w0 / zoom, h0 / zoom);
 		}
 		public void SetZoom(int z, int x, int y)
 		{
-			float xx = fov.Left + (x - p0.X) * zooms[zoom];
-			float yy = fov.Top + (y - p0.Y) * zooms[zoom];
+			float xx = fov.Left + (x - p0.X) / zoom;
+			float yy = fov.Top + (y - p0.Y) / zoom;
 
-			zoom = Math.Max(0, Math.Min(z - ZoomMin, zooms.Length - 1));
+			izoom = Math.Max(ZoomMin, Math.Min(z, ZoomMax));
+			zoom = (float)zooms.GetValue(izoom);
 
-			float w0 = Math.Min(p.Width, r.Width / zooms[zoom]);
-			float h0 = Math.Min(p.Height, r.Height / zooms[zoom]);
+			float w0 = Math.Min(p.Width, r.Width * zoom);
+			float h0 = Math.Min(p.Height, r.Height * zoom);
 
 			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
 
 			this.fov = new RectangleF(
-				Math.Max(0, Math.Min(xx - (x - p0.X) * zooms[zoom], r.Right - w0 * zooms[zoom])),
-				Math.Max(0, Math.Min(yy - (y - p0.Y) * zooms[zoom], r.Bottom - h0 * zooms[zoom])),
-				w0 * zooms[zoom], h0 * zooms[zoom]);
+				Math.Max(0, Math.Min(xx - (x - p0.X) / zoom, r.Right - w0 / zoom)),
+				Math.Max(0, Math.Min(yy - (y - p0.Y) / zoom, r.Bottom - h0 / zoom)),
+				w0 / zoom, h0 / zoom);
 		}
 		public void Move(int x, int y)
 		{ 
 			fov = new RectangleF(
-				Math.Max(0, Math.Min(fov.Left - x * zooms[zoom], r.Right - fov.Width)),
-				Math.Max(0, Math.Min(fov.Top - y * zooms[zoom], r.Bottom - fov.Height)), 
+				Math.Max(0, Math.Min(fov.Left - x / zoom, r.Right - fov.Width)),
+				Math.Max(0, Math.Min(fov.Top - y / zoom, r.Bottom - fov.Height)), 
 				fov.Width, fov.Height);
 		}
 		public void Draw(Graphics g)
@@ -228,7 +234,7 @@ namespace SalemElderTileMerger
 				if (!fov.IntersectsWith(new RectangleF(tile.X, tile.Y, tile.Width, tile.Height)))
 					continue;
 
-				RectangleF dest = new RectangleF(p0.X + (tile.X - fov.Left) / zooms[zoom], p0.Y + (tile.Y - fov.Top) / zooms[zoom], tile.Width / zooms[zoom], tile.Height / zooms[zoom]);
+				RectangleF dest = new RectangleF(p0.X + (tile.X - fov.Left) * zoom, p0.Y + (tile.Y - fov.Top) * zoom, tile.Width * zoom, tile.Height * zoom);
 
 				g.DrawImage(tile.Image, dest, new RectangleF(0, 0, tile.Width, tile.Height), GraphicsUnit.Pixel);
 
@@ -236,11 +242,11 @@ namespace SalemElderTileMerger
 
 			if (selected != null)
 			{
-				RectangleF dest = new RectangleF(p0.X + (selected.X - fov.Left) / zooms[zoom], 
-					p0.Y + (selected.Y - fov.Top) / zooms[zoom], 
-					selected.Width / zooms[zoom], selected.Height / zooms[zoom]);
+				RectangleF dest = new RectangleF(p0.X + (selected.X - fov.Left) * zoom, 
+					p0.Y + (selected.Y - fov.Top) * zoom, 
+					selected.Width * zoom, selected.Height * zoom);
 
-				if (zooms[zoom] <= 5)
+				if (zoom > 0.2)
 				{
 					g.DrawRectangle(Pens.White, dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
 					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent),
@@ -317,15 +323,15 @@ namespace SalemElderTileMerger
 		}
 		public int Zoom
 		{
-			get { return ZoomMin + zoom; }
+			get { return izoom; }
 		}
 		public int ZoomMin
 		{
-			get { return 2 - zooms.Length; }
+			get { return zooms.GetLowerBound(0); }
 		}
 		public int ZoomMax
 		{
-			get { return 1; }
+			get { return zooms.GetUpperBound(0); }
 		}
 		public string Name
 		{
