@@ -21,19 +21,29 @@ namespace SalemElderTileMerger
 
 		class Tile
 		{
-			byte[] bytes;
-			//Image image;
+			//byte[] bytes;
+			Image image;
 
 			public Tile(byte[] bytes)
 			{
-				this.bytes = bytes;
+				//this.bytes = bytes;
+				using (MemoryStream m = new MemoryStream(bytes))
+					image = Image.FromStream(m); 
 			}
-			public Tile(Tile tile): this(tile.bytes)
+			//public Tile(Tile tile): this(tile.bytes)
+			//{
+			//    this.X = tile.X;
+			//    this.Y = tile.Y;
+			//    this.Width = tile.Width;
+			//    this.Height = tile.Height;
+			//}
+			public Tile(Tile tile)
 			{
 				this.X = tile.X;
 				this.Y = tile.Y;
 				this.Width = tile.Width;
 				this.Height = tile.Height;
+				this.image = tile.image;
 			}
 
 			public int X { get; set; }
@@ -44,8 +54,9 @@ namespace SalemElderTileMerger
 			{
 				get 
 				{
-					using (MemoryStream m = new MemoryStream(bytes))
-						return Image.FromStream(m); 
+					//using (MemoryStream m = new MemoryStream(bytes))
+					//    return Image.FromStream(m); 
+					return image;
 				} 
 			}
 
