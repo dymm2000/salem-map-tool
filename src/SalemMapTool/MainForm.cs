@@ -19,6 +19,8 @@ namespace SalemElderTileMerger
 	{
 		Session selected = null;
 		bool updating = false;
+		bool ctrlPressed = false;
+		bool shftPressed = false;
 		int x0, y0, x, y;
 		Hashtable parameters = new Hashtable();
 
@@ -40,7 +42,8 @@ namespace SalemElderTileMerger
 			pictureBox.BackColor = (Color)parameters[s_backColor];
 			pictureBox.MouseEnter += pictureBox_MouseEnter;
 			pictureBox.MouseWheel += pictureBox_MouseWheel;
-
+			pictureBox.KeyDown += pictureBox_PreviewKey;
+			pictureBox.KeyUp += pictureBox_PreviewKey;
 		}
 
 		void ReadParameters(string[] args)
@@ -275,6 +278,13 @@ namespace SalemElderTileMerger
 			if (selected == null || e.Button != MouseButtons.Left)
 				return;
 
+			if (shftPressed)
+			{
+				selected.StartSelect(e.X, e.Y);
+
+				pictureBox.Refresh();
+			}
+
 			x0 = x = e.X;
 			y0 = y = e.Y;
 		}
@@ -283,9 +293,15 @@ namespace SalemElderTileMerger
 			if (selected == null || e.Button != MouseButtons.Left)
 				return;
 
-			if (Math.Abs(x0 - e.X) <= 1 && Math.Abs(y0 - e.Y) <= 1)
+			if (shftPressed)
 			{
-				selected.Hit(e.X, e.Y);
+				selected.EndSelect(e.X, e.Y, Math.Abs(x0 - e.X) <= 1 && Math.Abs(y0 - e.Y) <= 1);
+
+				pictureBox.Refresh();
+			}
+			else if (ctrlPressed && Math.Abs(x0 - e.X) <= 1 && Math.Abs(y0 - e.Y) <= 1)
+			{
+				selected.Choose(e.X, e.Y);
 
 				pictureBox.Refresh();
 			}
@@ -295,14 +311,22 @@ namespace SalemElderTileMerger
 			if (selected == null || e.Button != MouseButtons.Left)
 				return;
 
-			selected.Move(e.X - x, e.Y - y);
+
+			if (shftPressed)
+			{
+				selected.Move(e.X, e.Y);
+			}
+			else
+			{
+				selected.Move(e.X - x, e.Y - y);
+
+				UpdateBars();
+			}
+
+			pictureBox.Refresh();
 			
 			x = e.X;
 			y = e.Y;
-
-			UpdateBars();
-
-			pictureBox.Refresh();
 		}
 		private void pictureBox_MouseEnter(object sender, EventArgs e)
 		{
@@ -318,6 +342,11 @@ namespace SalemElderTileMerger
 			UpdateBars();
 
 			pictureBox.Refresh();
+		}
+		private void pictureBox_PreviewKey(object sender, KeyEventArgs e)
+		{
+			ctrlPressed = e.Control;
+			shftPressed = e.Shift;
 		}
 	}
 }
