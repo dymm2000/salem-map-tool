@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using System.Drawing.Imaging;
+using System.Configuration;
+using System.Globalization;
 
 namespace SalemElderTileMerger
 {
@@ -17,6 +19,8 @@ namespace SalemElderTileMerger
 		Session selected = null;
 		bool updating = false;
 		int x0, y0, x, y;
+		string importDir;
+		string exportDir;
 
 		public MainForm()
 		{
@@ -24,9 +28,17 @@ namespace SalemElderTileMerger
 
 			hScrollBar.Enabled = false;
 			vScrollBar.Enabled = false;
+			trackBarZoom.Visible = false;
 
+			uint bc; 
+			if (!uint.TryParse(ConfigurationManager.AppSettings["backColor"], NumberStyles.HexNumber, null, out bc))
+				bc = 0x4040ff;
+			pictureBox.BackColor = Color.FromArgb((int)(0xff000000 | bc));
 			pictureBox.MouseEnter += pictureBox_MouseEnter;
 			pictureBox.MouseWheel += pictureBox_MouseWheel;
+
+			importDir = ConfigurationManager.AppSettings["importDir"].ToLower().Replace("%userprofile%", Environment.GetEnvironmentVariable("userprofile"));
+			exportDir = ConfigurationManager.AppSettings["exportDir"].ToLower().Replace("%userprofile%", Environment.GetEnvironmentVariable("userprofile"));
 		}
 
 		void UpdateBars()
@@ -46,6 +58,10 @@ namespace SalemElderTileMerger
 				vScrollBar.SmallChange = vScrollBar.LargeChange / 4;
 				vScrollBar.Maximum = selected.Height;
 				vScrollBar.Value = selected.FOVTop;
+
+				trackBarZoom.Minimum = selected.ZoomMin;
+				trackBarZoom.Maximum = selected.ZoomMax;
+				trackBarZoom.Value = selected.Zoom;
 
 				updating = false;
 			}
@@ -72,7 +88,7 @@ namespace SalemElderTileMerger
 		{
 			using (FolderBrowserDialog d = new FolderBrowserDialog())
 			{
-				d.SelectedPath = Directory.GetCurrentDirectory();
+				d.SelectedPath = importDir;
 				if (d.ShowDialog() == DialogResult.OK)
 				{
 					object selected = listBoxSessions.SelectedItem;
@@ -131,7 +147,7 @@ namespace SalemElderTileMerger
 		{
 			using (FolderBrowserDialog d = new FolderBrowserDialog())
 			{
-				d.SelectedPath = Directory.GetCurrentDirectory();
+				d.SelectedPath = exportDir;
 				if (d.ShowDialog() == DialogResult.OK)
 				{
 					Cursor.Current = Cursors.WaitCursor;
@@ -154,6 +170,7 @@ namespace SalemElderTileMerger
 
 			hScrollBar.Enabled = selected != null;
 			vScrollBar.Enabled = selected != null;
+			trackBarZoom.Visible = selected != null;
 
 			UpdateBars();
 			
@@ -175,6 +192,17 @@ namespace SalemElderTileMerger
 				return;
 
 			selected.FOVTop = vScrollBar.Value;
+
+			pictureBox.Refresh();
+		}
+		private void trackBarZoom_Scroll(object sender, EventArgs e)
+		{
+			if (selected == null || updating)
+				return;
+
+			selected.SetZoom(trackBarZoom.Value, pictureBox.Width / 2, pictureBox.Height / 2);
+			
+			UpdateBars();
 
 			pictureBox.Refresh();
 		}
@@ -240,7 +268,7 @@ namespace SalemElderTileMerger
 			if (selected == null)
 				return;
 
-			selected.SetZoom(e.Delta, e.X, e.Y);
+			selected.SetZoom(selected.Zoom + (e.Delta > 0 ? 1 : -1), e.X, e.Y);
 
 			UpdateBars();
 
