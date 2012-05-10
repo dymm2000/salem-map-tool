@@ -1,7 +1,7 @@
 #summary Short How-to
 #labels Featured
 
-= What-is-it and How-To =
+=What-is-it and How-To=
 
 This is small utility for combining and merging maps from the Salem game.
 
@@ -12,11 +12,11 @@ http://forum.paradoxplaza.com/forum/showthread.php?603874-Salem-client-by-Ender
 As well you will need .Net 3.5 (included in Windows 7)
 
 
-= Details =
+=Details=
 
 Open the tool. There are sessions list on the left and image on the rigth.
 
-Ender's custom client saves map tiles (100x100) in *!UserHome/Salem/maps*. It creates new session every time you teleport, login or enter to home, for example. 
+Ender's custom client saves map tiles (100x100) in *!UserHome/Salem/map*. It creates new session every time you teleport, login or enter to home, for example. 
 
 Import session(s)
 
@@ -26,9 +26,11 @@ Now the sessions list is filled.
 
 http://salem-map-tool.googlecode.com/files/screenSession.jpg
 
-You can zoom in/out with mouse wheel and drag with left button.
+You can zoom in/out with mouse wheel or track bar in the top-left corner.
 
-For merging two or more session with common tile select this tile on each session image (not zoomed) by left click
+You can drag with left button.
+
+For merging two or more session with common tile select this tile on each session image by *Control+Left button*
 
 http://salem-map-tool.googlecode.com/files/screenMergeSource1.jpg
 http://salem-map-tool.googlecode.com/files/screenMergeSource2.jpg
@@ -55,3 +57,36 @@ When exporting, the tool saves whole image as well as all tiles, so you can impo
 Selected tile will be saved as origin, i.e. "tile_0_0.jpg"
 
 If none selected, the top-left one.
+
+
+You can select an area with *Shift+Left button"
+
+http://salem-map-tool.googlecode.com/files/screenSelectArea.jpg
+
+To make new session from selected area choose *Crop* in the menu
+
+http://salem-map-tool.googlecode.com/files/screenCrop.jpg
+
+To make new session from current one without selected area choose *Cut* in the menu
+
+http://salem-map-tool.googlecode.com/files/screenCut.jpg
+
+
+=Configuration=
+
+There are some parameters in the configuration file:
+
+ * *backcolor* - background map color (hex number "rrggbb", where rr,gg,bb - two bytes of red/green/blue)
+
+ * *importdir* - the folder where import dialog will be opened
+
+ * *exportdir* - the folder where export dialog will be opened
+
+
+The same parameters can be passed via command line and will have a higher priority, example:
+
+  `SalemMapTool.exe backcolor=4040ff importdir="%userprofile%\salem\map"`
+
+Pay attention to quote a path (double or single)
+
+Environment variables can be used, for example: _%userprofile%_
