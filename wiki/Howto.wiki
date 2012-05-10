@@ -20,8 +20,7 @@ Ender's custom client saves map tiles (100x100) in *!UserHome/Salem/maps*. It cr
 
 Import session(s)
 
-http://salem-map-tool.googlecode.com/files/screenImportMenu.jpg
-http://salem-map-tool.googlecode.com/files/screenImportDialog.jpg
+http://salem-map-tool.googlecode.com/files/screenImport.jpg
 
 Now the sessions list is filled. 
 
@@ -48,8 +47,7 @@ http://salem-map-tool.googlecode.com/files/screenRemoveMenu.jpg
 
 It's important to save merge result, so you can load it in the future and use for further merges.
 
-http://salem-map-tool.googlecode.com/files/screenExportMenu.jpg
-http://salem-map-tool.googlecode.com/files/screenExportDialog.jpg
+http://salem-map-tool.googlecode.com/files/screenExport.jpg
 
 When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one. Also you can use it together with Google API scripts.
 
