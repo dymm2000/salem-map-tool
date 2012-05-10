@@ -20,40 +20,40 @@ Ender's custom client saves map tiles (100x100) in *!UserHome/Salem/maps*. It cr
 
 Import session(s)
 
-http://salem-map-tool.googlecode.com/files/screenImportMenu.png
-http://salem-map-tool.googlecode.com/files/screenImportDialog.png
+http://salem-map-tool.googlecode.com/files/screenImportMenu.jpg
+http://salem-map-tool.googlecode.com/files/screenImportDialog.jpg
 
 Now the sessions list is filled. 
 
-http://salem-map-tool.googlecode.com/files/screenSession.png
+http://salem-map-tool.googlecode.com/files/screenSession.jpg
 
 You can zoom in/out with mouse wheel and drag with left button.
 
 For merging two or more session with common tile select this tile on each session image (not zoomed) by left click
 
-http://salem-map-tool.googlecode.com/files/screenMergeSource1.png
-http://salem-map-tool.googlecode.com/files/screenMergeSource2.png
+http://salem-map-tool.googlecode.com/files/screenMergeSource1.jpg
+http://salem-map-tool.googlecode.com/files/screenMergeSource2.jpg
 
 Then select those sessions in the list and choose "Merge"
 
-http://salem-map-tool.googlecode.com/files/screenMergeMenu.png
+http://salem-map-tool.googlecode.com/files/screenMergeMenu.jpg
 
 New session will be created
 
-http://salem-map-tool.googlecode.com/files/screenMergeResult.png
+http://salem-map-tool.googlecode.com/files/screenMergeResult.jpg
 
 You can remove session(s) from the list
 
-http://salem-map-tool.googlecode.com/files/screenRemoveMenu.png
+http://salem-map-tool.googlecode.com/files/screenRemoveMenu.jpg
 
 It's important to save merge result, so you can load it in the future and use for further merges.
 
-http://salem-map-tool.googlecode.com/files/screenExportMenu.png
-http://salem-map-tool.googlecode.com/files/screenExportDialog.png
+http://salem-map-tool.googlecode.com/files/screenExportMenu.jpg
+http://salem-map-tool.googlecode.com/files/screenExportDialog.jpg
 
 When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one. Also you can use it together with Google API scripts.
 
 
-Selected tile will be saved as origin, i.e. "tile_0_0.png"
+Selected tile will be saved as origin, i.e. "tile_0_0.jpg"
 
 If none selected, the top-left one.
