@@ -247,12 +247,6 @@ namespace SalemElderTileMerger
 			float xx = fov.Left + (x - p0.X) / zoom;
 			float yy = fov.Top + (y - p0.Y) / zoom;
 
-			if (!r.Contains(xx, yy))
-			{
-				selecting = false;
-				return;
-			}
-
 			s0 = new PointF(xx, yy);
 
 			selection = new RectangleF(xx, yy, 0, 0);

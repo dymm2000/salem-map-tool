@@ -372,7 +372,7 @@ namespace SalemElderTileMerger
 		}
 		private void pictureBox_MouseWheel(object sender, MouseEventArgs e)
 		{
-			if (selected == null)
+			if (selected == null || shftPressed)
 				return;
 
 			selected.SetZoom(selected.Zoom + (e.Delta > 0 ? 1 : -1), e.X, e.Y);
