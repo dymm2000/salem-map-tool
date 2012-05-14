@@ -44,6 +44,7 @@ namespace SalemElderTileMerger
 			pictureBox.MouseWheel += pictureBox_MouseWheel;
 			pictureBox.KeyDown += pictureBox_PreviewKey;
 			pictureBox.KeyUp += pictureBox_PreviewKey;
+			pictureBox.LostFocus += pictureBox_LostFocus;
 		}
 
 		void ReadParameters(string[] args)
@@ -114,6 +115,12 @@ namespace SalemElderTileMerger
 				updating = false;
 			}
 		}
+		bool NameQuery(ref string name)
+		{
+			name = Microsoft.VisualBasic.Interaction.InputBox("Session name", "Input", name, -1, -1);
+
+			return name != "";
+		}
 
 		private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
 		{
@@ -180,7 +187,11 @@ namespace SalemElderTileMerger
 			Cursor.Current = Cursors.WaitCursor;
 			try
 			{
-				Session session = new Session(string.Format("Merge {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now));
+				string name = string.Format("Merge {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now);
+				if (!NameQuery(ref name))
+					return;
+
+				Session session = new Session(name);
 				if (session.Load(listBoxSessions.SelectedItems))
 				{
 					listBoxSessions.SelectedItems.Clear();
@@ -218,7 +229,11 @@ namespace SalemElderTileMerger
 			Cursor.Current = Cursors.WaitCursor;
 			try
 			{
-				Session session = new Session(string.Format("Crop {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now));
+				string name = string.Format("Crop {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now);
+				if (!NameQuery(ref name))
+					return;
+
+				Session session = new Session(name);
 				if (session.Load(selected, Session.Inheritance.Crop))
 				{
 					listBoxSessions.SelectedItems.Clear();
@@ -236,7 +251,11 @@ namespace SalemElderTileMerger
 			Cursor.Current = Cursors.WaitCursor;
 			try
 			{
-				Session session = new Session(string.Format("Cut {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now));
+				string name = string.Format("Cut {0:yyyy-MM-dd HH.mm.ss}", DateTime.Now);
+				if (!NameQuery(ref name))
+					return;
+
+				Session session = new Session(name);
 				if (session.Load(selected, Session.Inheritance.Cut))
 				{
 					listBoxSessions.SelectedItems.Clear();
@@ -342,7 +361,7 @@ namespace SalemElderTileMerger
 				selected.Choose(e.X, e.Y);
 
 				pictureBox.Refresh();
-			}
+			} 
 		}
 		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
 		{
@@ -385,6 +404,11 @@ namespace SalemElderTileMerger
 		{
 			ctrlPressed = e.Control;
 			shftPressed = e.Shift;
+		}
+		private void pictureBox_LostFocus(object sender, EventArgs e)
+		{
+			ctrlPressed = false;
+			shftPressed = false;
 		}
 	}
 }
