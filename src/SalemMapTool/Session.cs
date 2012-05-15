@@ -361,7 +361,10 @@ namespace SalemElderTileMerger
 		public void Save(string directory)
 		{
 			string mapdir = Path.Combine(directory, Name);
+			if (Directory.Exists(mapdir))
+				throw new Exception(string.Format("Directory exists:\n{0}", mapdir));
 			Directory.CreateDirectory(mapdir);
+			
 			if (chosen == null)
 			{
 				foreach (Tile tile in tiles)
@@ -373,6 +376,10 @@ namespace SalemElderTileMerger
 					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height)), ImageFormat.Png);
 			}
 
+			string mapfile = Path.Combine(directory, Name + ".png");
+			if (File.Exists(mapfile))
+				throw new Exception(string.Format("Map file exists:\n{0}", mapfile));
+
 			try
 			{
 				using (Image i = new Bitmap((int)r.Width, (int)r.Height))
@@ -381,12 +388,12 @@ namespace SalemElderTileMerger
 						foreach (Tile tile in tiles)
 							g.DrawImage(tile.Image, tile.X, tile.Y);
 
-					i.Save(Path.Combine(directory, Name + ".png"), ImageFormat.Png);
+					i.Save(mapfile, ImageFormat.Png);
 				}
 			}
 			catch (Exception e)
 			{
-				MessageBox.Show(string.Format("{0}\nWhole map can not be saved:\n\n{1}", Name, e.Message), "Error");
+				throw new Exception(string.Format("Whole map can not be saved:\n{0}", e.Message));
 			}
 		}
 
