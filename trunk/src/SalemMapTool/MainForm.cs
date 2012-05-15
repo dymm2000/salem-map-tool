@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 using System.Configuration;
 using System.Globalization;
 using System.Collections;
+using System.Diagnostics;
 
 namespace SalemElderTileMerger
 {
@@ -34,6 +35,24 @@ namespace SalemElderTileMerger
 			ReadParameters(args);
 
 			InitializeComponent();
+
+			contextMenuStripSessions.Items.Add("Import...", null, toolStripMenuItemImport_Click);
+			contextMenuStripSessions.Items.Add("Export...", null, toolStripMenuItemExport_Click);
+			contextMenuStripSessions.Items.Add(new ToolStripSeparator());
+			contextMenuStripSessions.Items.Add("Merge...", null, toolStripMenuItemMerge_Click);
+			contextMenuStripSessions.Items.Add("Crop...", null, toolStripMenuItemCrop_Click);
+			contextMenuStripSessions.Items.Add("Cut...", null, toolStripMenuItemCut_Click);
+			contextMenuStripSessions.Items.Add(new ToolStripSeparator());
+			contextMenuStripSessions.Items.Add("Remove", null, toolStripMenuItemRemove_Click);
+
+			toolStripMenuItemSession.DropDownItems.Add("Import...", null, toolStripMenuItemImport_Click);
+			toolStripMenuItemSession.DropDownItems.Add("Export...", null, toolStripMenuItemExport_Click);
+			toolStripMenuItemSession.DropDownItems.Add(new ToolStripSeparator());
+			toolStripMenuItemSession.DropDownItems.Add("Merge...", null, toolStripMenuItemMerge_Click);
+			toolStripMenuItemSession.DropDownItems.Add("Crop...", null, toolStripMenuItemCrop_Click);
+			toolStripMenuItemSession.DropDownItems.Add("Cut...", null, toolStripMenuItemCut_Click);
+			toolStripMenuItemSession.DropDownItems.Add(new ToolStripSeparator());
+			toolStripMenuItemSession.DropDownItems.Add("Remove", null, toolStripMenuItemRemove_Click);
 
 			hScrollBar.Enabled = false;
 			vScrollBar.Enabled = false;
@@ -115,6 +134,26 @@ namespace SalemElderTileMerger
 				updating = false;
 			}
 		}
+		void UpdateMenu()
+		{ 
+			bool canAct = selected != null;
+			bool canMerge = listBoxSessions.SelectedItems.Count > 1;
+			foreach (Session session in listBoxSessions.SelectedItems)
+				canMerge &= session.CanMerge;
+
+			contextMenuStripSessions.Items[1].Enabled = canAct;
+			contextMenuStripSessions.Items[3].Enabled = canMerge;
+			contextMenuStripSessions.Items[4].Enabled = canAct;
+			contextMenuStripSessions.Items[5].Enabled = canAct;
+			contextMenuStripSessions.Items[7].Enabled = canAct;
+
+
+			toolStripMenuItemSession.DropDownItems[1].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[3].Enabled = canMerge;
+			toolStripMenuItemSession.DropDownItems[4].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[5].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[7].Enabled = canAct;
+		}
 		bool NameQuery(ref string name)
 		{
 			name = Microsoft.VisualBasic.Interaction.InputBox("Session name", "Input", name, -1, -1);
@@ -124,14 +163,11 @@ namespace SalemElderTileMerger
 
 		private void contextMenuStrip_Opening(object sender, CancelEventArgs e)
 		{
-			toolStripMenuItemExport.Enabled = listBoxSessions.SelectedItem != null;
-			toolStripMenuItemCut.Enabled = listBoxSessions.SelectedItem != null;
-			toolStripMenuItemCrop.Enabled = listBoxSessions.SelectedItem != null;
-			toolStripMenuItemRemove.Enabled = listBoxSessions.SelectedItem != null;
-			
-			toolStripMenuItemMerge.Enabled = listBoxSessions.SelectedItems.Count > 1;
-			foreach (Session session in listBoxSessions.SelectedItems)
-				toolStripMenuItemMerge.Enabled &= session.CanMerge;
+			UpdateMenu();
+		}
+		private void menuStripMain_MenuActivate(object sender, EventArgs e)
+		{
+			UpdateMenu();
 		}
 		private void toolStripMenuItemImport_Click(object sender, EventArgs e)
 		{
@@ -174,14 +210,6 @@ namespace SalemElderTileMerger
 				}
 			}
 		}
-		private void toolStripMenuItemRemove_Click(object sender, EventArgs e)
-		{
-			List<Session> selected = new List<Session>();
-			foreach (Session session in listBoxSessions.SelectedItems)
-				selected.Add(session);
-			foreach (Session session in selected)
-				listBoxSessions.Items.Remove(session);
-		}
 		private void toolStripMenuItemMerge_Click(object sender, EventArgs e)
 		{
 			Cursor.Current = Cursors.WaitCursor;
@@ -215,7 +243,14 @@ namespace SalemElderTileMerger
 					try
 					{
 						foreach (Session session in listBoxSessions.SelectedItems)
-							session.Save(d.SelectedPath);
+							try
+							{
+								session.Save(d.SelectedPath);
+							}
+							catch (Exception ex)
+							{
+								MessageBox.Show(string.Format("Session '{0}'\n{1}", session.Name, ex.Message), "Error");
+							}
 					}
 					finally
 					{
@@ -268,7 +303,19 @@ namespace SalemElderTileMerger
 				Cursor.Current = Cursors.Default;
 			}
 		}
+		private void toolStripMenuItemRemove_Click(object sender, EventArgs e)
+		{
+			List<Session> selected = new List<Session>();
+			foreach (Session session in listBoxSessions.SelectedItems)
+				selected.Add(session);
+			foreach (Session session in selected)
+				listBoxSessions.Items.Remove(session);
+		}
 
+		private void linkLabelHome_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("http://code.google.com/p/salem-map-tool/");
+		}
 		private void listBoxSessions_SelectedValueChanged(object sender, EventArgs e)
 		{
 			selected = listBoxSessions.SelectedItems.Count == 1 ? listBoxSessions.SelectedItem as Session : null;

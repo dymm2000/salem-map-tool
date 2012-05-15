@@ -29,23 +29,19 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.listBoxSessions = new System.Windows.Forms.ListBox();
 			this.contextMenuStripSessions = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.toolStripMenuItemImport = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItemExport = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripMenuItemMerge = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripMenuItemRemove = new System.Windows.Forms.ToolStripMenuItem();
 			this.pictureBox = new System.Windows.Forms.PictureBox();
 			this.vScrollBar = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar = new System.Windows.Forms.HScrollBar();
 			this.trackBarZoom = new System.Windows.Forms.TrackBar();
-			this.toolStripMenuItemCrop = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItemCut = new System.Windows.Forms.ToolStripMenuItem();
-			this.contextMenuStripSessions.SuspendLayout();
+			this.menuStripMain = new System.Windows.Forms.MenuStrip();
+			this.toolStripMenuItemSession = new System.Windows.Forms.ToolStripMenuItem();
+			this.linkLabelHome = new System.Windows.Forms.LinkLabel();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).BeginInit();
+			this.menuStripMain.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// listBoxSessions
@@ -55,72 +51,25 @@
 			this.listBoxSessions.Dock = System.Windows.Forms.DockStyle.Left;
 			this.listBoxSessions.FormattingEnabled = true;
 			this.listBoxSessions.IntegralHeight = false;
-			this.listBoxSessions.Location = new System.Drawing.Point(0, 0);
+			this.listBoxSessions.Location = new System.Drawing.Point(0, 24);
 			this.listBoxSessions.Name = "listBoxSessions";
 			this.listBoxSessions.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-			this.listBoxSessions.Size = new System.Drawing.Size(255, 550);
+			this.listBoxSessions.Size = new System.Drawing.Size(255, 510);
 			this.listBoxSessions.TabIndex = 0;
 			this.listBoxSessions.SelectedValueChanged += new System.EventHandler(this.listBoxSessions_SelectedValueChanged);
 			// 
 			// contextMenuStripSessions
 			// 
-			this.contextMenuStripSessions.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItemImport,
-            this.toolStripMenuItemExport,
-            this.toolStripSeparator1,
-            this.toolStripMenuItemMerge,
-            this.toolStripMenuItemCrop,
-            this.toolStripMenuItemCut,
-            this.toolStripSeparator2,
-            this.toolStripMenuItemRemove});
 			this.contextMenuStripSessions.Name = "contextMenuStrip1";
-			this.contextMenuStripSessions.Size = new System.Drawing.Size(157, 170);
+			this.contextMenuStripSessions.Size = new System.Drawing.Size(61, 4);
 			this.contextMenuStripSessions.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
-			// 
-			// toolStripMenuItemImport
-			// 
-			this.toolStripMenuItemImport.Name = "toolStripMenuItemImport";
-			this.toolStripMenuItemImport.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemImport.Text = "Import session";
-			this.toolStripMenuItemImport.Click += new System.EventHandler(this.toolStripMenuItemImport_Click);
-			// 
-			// toolStripMenuItemExport
-			// 
-			this.toolStripMenuItemExport.Name = "toolStripMenuItemExport";
-			this.toolStripMenuItemExport.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemExport.Text = "Export session...";
-			this.toolStripMenuItemExport.Click += new System.EventHandler(this.toolStripMenuItemExport_Click);
-			// 
-			// toolStripSeparator1
-			// 
-			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(153, 6);
-			// 
-			// toolStripMenuItemMerge
-			// 
-			this.toolStripMenuItemMerge.Name = "toolStripMenuItemMerge";
-			this.toolStripMenuItemMerge.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemMerge.Text = "Merge";
-			this.toolStripMenuItemMerge.Click += new System.EventHandler(this.toolStripMenuItemMerge_Click);
-			// 
-			// toolStripSeparator2
-			// 
-			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
-			// 
-			// toolStripMenuItemRemove
-			// 
-			this.toolStripMenuItemRemove.Name = "toolStripMenuItemRemove";
-			this.toolStripMenuItemRemove.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemRemove.Text = "Remove session";
-			this.toolStripMenuItemRemove.Click += new System.EventHandler(this.toolStripMenuItemRemove_Click);
 			// 
 			// pictureBox
 			// 
 			this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pictureBox.Location = new System.Drawing.Point(255, 0);
+			this.pictureBox.Location = new System.Drawing.Point(255, 24);
 			this.pictureBox.Name = "pictureBox";
-			this.pictureBox.Size = new System.Drawing.Size(494, 534);
+			this.pictureBox.Size = new System.Drawing.Size(494, 510);
 			this.pictureBox.TabIndex = 1;
 			this.pictureBox.TabStop = false;
 			this.pictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
@@ -141,15 +90,15 @@
 			// hScrollBar
 			// 
 			this.hScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.hScrollBar.Location = new System.Drawing.Point(255, 534);
+			this.hScrollBar.Location = new System.Drawing.Point(0, 534);
 			this.hScrollBar.Name = "hScrollBar";
-			this.hScrollBar.Size = new System.Drawing.Size(494, 16);
+			this.hScrollBar.Size = new System.Drawing.Size(749, 16);
 			this.hScrollBar.TabIndex = 3;
 			this.hScrollBar.ValueChanged += new System.EventHandler(this.hScrollBar_ValueChanged);
 			// 
 			// trackBarZoom
 			// 
-			this.trackBarZoom.Location = new System.Drawing.Point(270, 12);
+			this.trackBarZoom.Location = new System.Drawing.Point(261, 27);
 			this.trackBarZoom.Name = "trackBarZoom";
 			this.trackBarZoom.Orientation = System.Windows.Forms.Orientation.Vertical;
 			this.trackBarZoom.Size = new System.Drawing.Size(42, 104);
@@ -158,35 +107,55 @@
 			this.trackBarZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
 			this.trackBarZoom.Scroll += new System.EventHandler(this.trackBarZoom_Scroll);
 			// 
-			// toolStripMenuItemCrop
+			// menuStripMain
 			// 
-			this.toolStripMenuItemCrop.Name = "toolStripMenuItemCrop";
-			this.toolStripMenuItemCrop.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemCrop.Text = "Crop";
-			this.toolStripMenuItemCrop.Click += new System.EventHandler(this.toolStripMenuItemCrop_Click);
+			this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemSession});
+			this.menuStripMain.Location = new System.Drawing.Point(0, 0);
+			this.menuStripMain.Name = "menuStripMain";
+			this.menuStripMain.Size = new System.Drawing.Size(749, 24);
+			this.menuStripMain.TabIndex = 5;
+			this.menuStripMain.MenuActivate += new System.EventHandler(this.menuStripMain_MenuActivate);
 			// 
-			// toolStripMenuItemCut
+			// toolStripMenuItemSession
 			// 
-			this.toolStripMenuItemCut.Name = "toolStripMenuItemCut";
-			this.toolStripMenuItemCut.Size = new System.Drawing.Size(156, 22);
-			this.toolStripMenuItemCut.Text = "Cut";
-			this.toolStripMenuItemCut.Click += new System.EventHandler(this.toolStripMenuItemCut_Click);
+			this.toolStripMenuItemSession.Name = "toolStripMenuItemSession";
+			this.toolStripMenuItemSession.Size = new System.Drawing.Size(55, 20);
+			this.toolStripMenuItemSession.Text = "Session";
+			// 
+			// linkLabelHome
+			// 
+			this.linkLabelHome.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.linkLabelHome.AutoSize = true;
+			this.linkLabelHome.BackColor = System.Drawing.SystemColors.Control;
+			this.linkLabelHome.Location = new System.Drawing.Point(647, 5);
+			this.linkLabelHome.Name = "linkLabelHome";
+			this.linkLabelHome.Size = new System.Drawing.Size(99, 13);
+			this.linkLabelHome.TabIndex = 6;
+			this.linkLabelHome.TabStop = true;
+			this.linkLabelHome.Text = "Project Home Page";
+			this.linkLabelHome.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelHome_LinkClicked);
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(765, 550);
+			this.Controls.Add(this.linkLabelHome);
 			this.Controls.Add(this.trackBarZoom);
 			this.Controls.Add(this.pictureBox);
+			this.Controls.Add(this.listBoxSessions);
+			this.Controls.Add(this.menuStripMain);
 			this.Controls.Add(this.hScrollBar);
 			this.Controls.Add(this.vScrollBar);
-			this.Controls.Add(this.listBoxSessions);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.MainMenuStrip = this.menuStripMain;
 			this.Name = "MainForm";
 			this.Text = "Salem Map Tool";
-			this.contextMenuStripSessions.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).EndInit();
+			this.menuStripMain.ResumeLayout(false);
+			this.menuStripMain.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -195,19 +164,14 @@
 		#endregion
 
 		private System.Windows.Forms.ListBox listBoxSessions;
-		private System.Windows.Forms.ContextMenuStrip contextMenuStripSessions;
 		private System.Windows.Forms.PictureBox pictureBox;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemImport;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemRemove;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemExport;
 		private System.Windows.Forms.VScrollBar vScrollBar;
 		private System.Windows.Forms.HScrollBar hScrollBar;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemMerge;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.TrackBar trackBarZoom;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCrop;
-		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCut;
+		private System.Windows.Forms.MenuStrip menuStripMain;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSession;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStripSessions;
+		private System.Windows.Forms.LinkLabel linkLabelHome;
 	}
 }
 
