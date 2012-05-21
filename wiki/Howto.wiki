@@ -82,6 +82,8 @@ There are some parameters in the configuration file:
 
  * *exportdir* - the folder where export dialog will be opened
 
+ * *importminsize* - the minimum amount of tiles in imported folder, default is 0 (no limitation)
+
 
 The same parameters can be passed via command line and will have a higher priority, example:
 
