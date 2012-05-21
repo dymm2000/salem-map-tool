@@ -26,6 +26,7 @@ namespace SalemElderTileMerger
 		Hashtable parameters = new Hashtable();
 
 		const string s_backColor = "backcolor";
+		const string s_importMinSize = "importminsize";
 		const string s_importDir = "importdir";
 		const string s_exportDir = "exportdir";
 		const string s_userprofile = "userprofile";
@@ -71,11 +72,16 @@ namespace SalemElderTileMerger
 			string value;
 			string userprofile = Environment.GetEnvironmentVariable(s_userprofile);
  
-			uint bc; 
+			uint uvalue; 
 			value = ConfigurationManager.AppSettings[s_backColor];
-			if (!uint.TryParse(value, NumberStyles.HexNumber, null, out bc))
-				bc = 0x4040ff;
-			parameters[s_backColor] = Color.FromArgb((int)(0xff000000 | bc));
+			if (!uint.TryParse(value, NumberStyles.HexNumber, null, out uvalue))
+				uvalue = 0x4040ff;
+			parameters[s_backColor] = Color.FromArgb((int)(0xff000000 | uvalue));
+
+			value = ConfigurationManager.AppSettings[s_importMinSize];
+			if (!uint.TryParse(value, NumberStyles.Integer, null, out uvalue))
+				uvalue = 0;
+			parameters[s_importMinSize] = Math.Max(0, uvalue);
 
 			value = ConfigurationManager.AppSettings[s_importDir];
 			parameters[s_importDir] = value == null ? userprofile : value.ToLower().Replace(string.Format("%{0}%", s_userprofile), userprofile);
@@ -96,8 +102,8 @@ namespace SalemElderTileMerger
 
 				if (s[0] == s_backColor)
 				{ 
-					if (uint.TryParse(s[1], NumberStyles.HexNumber, null, out bc))
-						parameters[s_backColor] = Color.FromArgb((int)(0xff000000 | bc));
+					if (uint.TryParse(s[1], NumberStyles.HexNumber, null, out uvalue))
+						parameters[s_backColor] = Color.FromArgb((int)(0xff000000 | uvalue));
 				}
 				else if (s[0] == s_importDir)
 				{
@@ -106,6 +112,12 @@ namespace SalemElderTileMerger
 				else if (s[0] == s_exportDir)
 				{
 					parameters[s_exportDir] = s[1];
+				}
+				else if (s[0] == s_importMinSize)
+				{
+					if (!uint.TryParse(value, NumberStyles.Integer, null, out uvalue))
+						uvalue = 0;
+					parameters[s_importMinSize] = Math.Max(0, uvalue);
 				}
 			}
 		}
@@ -182,7 +194,7 @@ namespace SalemElderTileMerger
 					try
 					{
 						Session session = new Session(Path.GetFileName(d.SelectedPath));
-						if (session.Load(d.SelectedPath))
+						if (session.Load(d.SelectedPath, (uint)parameters[s_importMinSize]))
 						{
 							listBoxSessions.SelectedItems.Clear();
 							listBoxSessions.Items.Add(session);
@@ -192,7 +204,7 @@ namespace SalemElderTileMerger
 						foreach (string folder in Directory.GetDirectories(d.SelectedPath, "*", SearchOption.AllDirectories))
 						{
 							session = new Session(Path.GetFileName(folder));
-							if (session.Load(folder))
+							if (session.Load(folder, (uint)parameters[s_importMinSize]))
 							{
 								listBoxSessions.SelectedItems.Clear();
 								listBoxSessions.Items.Add(session);

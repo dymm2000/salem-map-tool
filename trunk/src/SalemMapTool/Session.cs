@@ -85,7 +85,7 @@ namespace SalemElderTileMerger
 		{ 
 			Name = name;
 		}
-		public bool Load(string path)
+		public bool Load(string path, uint minSize)
 		{
 			int left = int.MaxValue;
 			int right = int.MinValue;
@@ -109,7 +109,7 @@ namespace SalemElderTileMerger
 				bottom = Math.Max(bottom, tile.Y + tile.Height);
 			}
 
-			if (tiles.Count <= 12)
+			if (tiles.Count < minSize)
 				return false;
 
 			foreach (Tile tile in tiles)
