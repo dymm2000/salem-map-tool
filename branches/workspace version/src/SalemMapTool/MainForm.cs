@@ -148,23 +148,24 @@ namespace SalemElderTileMerger
 		}
 		void UpdateMenu()
 		{ 
-			bool canAct = selected != null;
+			bool selectedSingle = selected != null;
+			bool selectedMulti = listBoxSessions.SelectedItems.Count > 0;
 			bool canMerge = listBoxSessions.SelectedItems.Count > 1;
 			foreach (Session session in listBoxSessions.SelectedItems)
 				canMerge &= session.CanMerge;
 
-			contextMenuStripSessions.Items[1].Enabled = canAct;
+			contextMenuStripSessions.Items[1].Enabled = selectedSingle;
 			contextMenuStripSessions.Items[3].Enabled = canMerge;
-			contextMenuStripSessions.Items[4].Enabled = canAct;
-			contextMenuStripSessions.Items[5].Enabled = canAct;
-			contextMenuStripSessions.Items[7].Enabled = canAct;
+			contextMenuStripSessions.Items[4].Enabled = selectedSingle;
+			contextMenuStripSessions.Items[5].Enabled = selectedSingle;
+			contextMenuStripSessions.Items[7].Enabled = selectedMulti;
 
 
-			toolStripMenuItemSession.DropDownItems[1].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[1].Enabled = selectedSingle;
 			toolStripMenuItemSession.DropDownItems[3].Enabled = canMerge;
-			toolStripMenuItemSession.DropDownItems[4].Enabled = canAct;
-			toolStripMenuItemSession.DropDownItems[5].Enabled = canAct;
-			toolStripMenuItemSession.DropDownItems[7].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[4].Enabled = selectedSingle;
+			toolStripMenuItemSession.DropDownItems[5].Enabled = selectedSingle;
+			toolStripMenuItemSession.DropDownItems[7].Enabled = selectedMulti;
 		}
 		bool NameQuery(ref string name)
 		{

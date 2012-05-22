@@ -213,15 +213,15 @@ namespace SalemElderTileMerger
 		{
 			float zoomStep = (float)Math.Sqrt(2);
 			float zoomMax = 2;
-			float zoomMin = Math.Min(1f, Math.Min(1000f / w, 1000f / h));
+			float zoomMin = Math.Min(1f, (float)Math.Pow(zoomStep, Math.Floor(Math.Log(1000f / Math.Max(w, h), zoomStep))));
 
 			zooms = Array.CreateInstance(typeof(float), 
-				new int[] { 1 + (int)Math.Ceiling(Math.Log(zoomMax, zoomStep)) - (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) },
+				new int[] { (int)Math.Ceiling(Math.Log(zoomMax, zoomStep)) - (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) },
 				new int[] { (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) });
 			
 			for (int i = ZoomMin; i <= ZoomMax; i++)
 				zooms.SetValue((float)Math.Pow(zoomStep, i), i);
-			
+
 			izoom = ZoomMin;
 			zoom = (float)zooms.GetValue(izoom);
 
