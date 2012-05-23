@@ -127,7 +127,7 @@ namespace SalemElderTileMerger
 			{
 				updating = true;
 
-				selected.SetFOV(pictureBox.Width, pictureBox.Height);
+				selected.SetFOV(new Rectangle(10, 10, pictureBox.Width - 20, pictureBox.Height - 20));
 
 				hScrollBar.LargeChange = selected.FOVWidth;
 				hScrollBar.SmallChange = hScrollBar.LargeChange / 4;
@@ -377,7 +377,7 @@ namespace SalemElderTileMerger
 			if (selected == null || pictureBox.Width == 0 || pictureBox.Height == 0)
 				return;
 
-			selected.SetFOV(pictureBox.Width, pictureBox.Height);
+			selected.SetFOV(new Rectangle(10, 10, pictureBox.Width - 20, pictureBox.Height - 20));
 
 			UpdateBars();
 			
@@ -386,7 +386,7 @@ namespace SalemElderTileMerger
 		private void pictureBox_Paint(object sender, PaintEventArgs e)
 		{
 			if (selected == null)
-				e.Graphics.Clear(BackColor);
+				e.Graphics.Clear(pictureBox.BackColor);
 			else
 				selected.Draw(e.Graphics);
 		}

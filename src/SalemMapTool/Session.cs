@@ -264,19 +264,19 @@ namespace SalemElderTileMerger
 
 			chosen = hit != null && chosen == hit ? null : hit;
 		}
-		public void SetFOV(int w, int h)
+		public void SetFOV(Rectangle area)
 		{
-			p = new RectangleF(0, 0, w, h);
+			p = area;
 
-			float w0 = Math.Min(w, r.Width * zoom);
-			float h0 = Math.Min(h, r.Height * zoom);
+			float w0 = Math.Min(area.Width / zoom, r.Width);
+			float h0 = Math.Min(area.Height / zoom, r.Height);
 
-			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
+			p0 = new PointF(p.Left + (p.Width - w0 * zoom) / 2, p.Top + (p.Height - h0 * zoom) / 2);
 
 			fov = new RectangleF(
-				Math.Max(0, Math.Min(fov.Left, r.Right - w0 / zoom)),
-				Math.Max(0, Math.Min(fov.Top, r.Bottom - h0 / zoom)),
-				w0 / zoom, h0 / zoom);
+				Math.Max(0, Math.Min(fov.Left, r.Right - w0)),
+				Math.Max(0, Math.Min(fov.Top, r.Bottom - h0)),
+				w0, h0);
 		}
 		public void SetZoom(int z, int x, int y)
 		{
@@ -286,15 +286,15 @@ namespace SalemElderTileMerger
 			izoom = Math.Max(ZoomMin, Math.Min(z, ZoomMax));
 			zoom = (float)zooms.GetValue(izoom);
 
-			float w0 = Math.Min(p.Width, r.Width * zoom);
-			float h0 = Math.Min(p.Height, r.Height * zoom);
+			float w0 = Math.Min(p.Width / zoom, r.Width);
+			float h0 = Math.Min(p.Height / zoom, r.Height);
 
-			p0 = new PointF((p.Width - w0) / 2, (p.Height - h0) / 2);
+			p0 = new PointF(p.Left + (p.Width - w0 * zoom) / 2, p.Top + (p.Height - h0 * zoom) / 2);
 
 			fov = new RectangleF(
-				Math.Max(0, Math.Min(xx - (x - p0.X) / zoom, r.Right - w0 / zoom)),
-				Math.Max(0, Math.Min(yy - (y - p0.Y) / zoom, r.Bottom - h0 / zoom)),
-				w0 / zoom, h0 / zoom);
+				Math.Max(0, Math.Min(xx - (x - p0.X) / zoom, r.Right - w0)),
+				Math.Max(0, Math.Min(yy - (y - p0.Y) / zoom, r.Bottom - h0)),
+				w0, h0);
 		}
 		public void Move(int x, int y)
 		{ 
@@ -324,39 +324,52 @@ namespace SalemElderTileMerger
 		}
 		public void Draw(Graphics g)
 		{
+			RectangleF dst;
+			RectangleF src;
+
 			foreach (Tile tile in tiles)
 			{
-				if (!fov.IntersectsWith(new RectangleF(tile.X, tile.Y, tile.Width, tile.Height)))
+				src = new RectangleF(tile.X, tile.Y, tile.Width, tile.Height);
+				src.Intersect(fov);
+				
+				if (src.Width == 0 || src.Height == 0)
 					continue;
 
-				RectangleF dest = new RectangleF(p0.X + (tile.X - fov.Left) * zoom, p0.Y + (tile.Y - fov.Top) * zoom, tile.Width * zoom, tile.Height * zoom);
+				dst = new RectangleF(p0.X + (tile.X - fov.Left) * zoom, p0.Y + (tile.Y - fov.Top) * zoom, tile.Width * zoom, tile.Height * zoom);
+				dst.Intersect(p);
 
-				g.DrawImage(tile.Image, dest, new RectangleF(0, 0, tile.Width, tile.Height), GraphicsUnit.Pixel);
+				src = new RectangleF(src.Left - tile.X, src.Top - tile.Y, src.Width, src.Height);
+
+				g.DrawImage(tile.Image, dst, src, GraphicsUnit.Pixel);
 			}
 
 			if (chosen != null)
 			{
-				RectangleF dest = new RectangleF(p0.X + (chosen.X - fov.Left) * zoom, 
+				dst = new RectangleF(p0.X + (chosen.X - fov.Left) * zoom, 
 					p0.Y + (chosen.Y - fov.Top) * zoom, 
 					chosen.Width * zoom, chosen.Height * zoom);
+				dst.Intersect(p);
 
 				if (zoom > 0.2)
 				{
-					g.DrawRectangle(Pens.White, dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
+					g.DrawRectangle(Pens.White, dst.Left, dst.Top, dst.Width - 1, dst.Height - 1);
 					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent),
-						dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
+						dst.Left, dst.Top, dst.Width - 1, dst.Height - 1);
 				}
 				else
 				{
-					g.FillRectangle(Brushes.White, dest.Left, dest.Top, dest.Width - 1, dest.Height - 1);
+					g.FillRectangle(Brushes.White, dst.Left, dst.Top, dst.Width - 1, dst.Height - 1);
 				}
 			}
 
 			if (selection.Width != r.Width || selection.Height != r.Height)
-				g.DrawRectangle(new Pen(Brushes.Yellow, 3),
-					p0.X + (selection.Left - fov.Left) * zoom,
-					p0.Y + (selection.Top - fov.Top) * zoom,
-					selection.Width * zoom - 1, selection.Height * zoom - 1);
+			{
+				dst = new RectangleF(p0.X + (selection.Left - fov.Left) * zoom,
+						p0.Y + (selection.Top - fov.Top) * zoom,
+						selection.Width * zoom - 1, selection.Height * zoom - 1);
+				dst.Intersect(p);
+				g.DrawRectangle(new Pen(Brushes.Yellow, 3), dst.Left, dst.Top, dst.Width, dst.Height);
+			}
 		}
 		public void Save(string directory)
 		{
