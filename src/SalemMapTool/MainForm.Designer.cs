@@ -1,4 +1,4 @@
-﻿namespace SalemElderTileMerger
+﻿namespace SalemMapTool
 {
 	partial class MainForm
 	{
