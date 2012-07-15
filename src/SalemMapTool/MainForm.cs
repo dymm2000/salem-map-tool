@@ -127,7 +127,7 @@ namespace SalemElderTileMerger
 			{
 				updating = true;
 
-				selected.SetFOV(pictureBox.Width, pictureBox.Height);
+				selected.SetFOV(new Rectangle(10, 10, pictureBox.Width - 20, pictureBox.Height - 20));
 
 				hScrollBar.LargeChange = selected.FOVWidth;
 				hScrollBar.SmallChange = hScrollBar.LargeChange / 4;
@@ -148,23 +148,24 @@ namespace SalemElderTileMerger
 		}
 		void UpdateMenu()
 		{ 
-			bool canAct = selected != null;
+			bool selectedSingle = selected != null;
+			bool selectedMulti = listBoxSessions.SelectedItems.Count > 0;
 			bool canMerge = listBoxSessions.SelectedItems.Count > 1;
 			foreach (Session session in listBoxSessions.SelectedItems)
 				canMerge &= session.CanMerge;
 
-			contextMenuStripSessions.Items[1].Enabled = canAct;
+			contextMenuStripSessions.Items[1].Enabled = selectedSingle;
 			contextMenuStripSessions.Items[3].Enabled = canMerge;
-			contextMenuStripSessions.Items[4].Enabled = canAct;
-			contextMenuStripSessions.Items[5].Enabled = canAct;
-			contextMenuStripSessions.Items[7].Enabled = canAct;
+			contextMenuStripSessions.Items[4].Enabled = selectedSingle;
+			contextMenuStripSessions.Items[5].Enabled = selectedSingle;
+			contextMenuStripSessions.Items[7].Enabled = selectedMulti;
 
 
-			toolStripMenuItemSession.DropDownItems[1].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[1].Enabled = selectedSingle;
 			toolStripMenuItemSession.DropDownItems[3].Enabled = canMerge;
-			toolStripMenuItemSession.DropDownItems[4].Enabled = canAct;
-			toolStripMenuItemSession.DropDownItems[5].Enabled = canAct;
-			toolStripMenuItemSession.DropDownItems[7].Enabled = canAct;
+			toolStripMenuItemSession.DropDownItems[4].Enabled = selectedSingle;
+			toolStripMenuItemSession.DropDownItems[5].Enabled = selectedSingle;
+			toolStripMenuItemSession.DropDownItems[7].Enabled = selectedMulti;
 		}
 		bool NameQuery(ref string name)
 		{
@@ -376,7 +377,7 @@ namespace SalemElderTileMerger
 			if (selected == null || pictureBox.Width == 0 || pictureBox.Height == 0)
 				return;
 
-			selected.SetFOV(pictureBox.Width, pictureBox.Height);
+			selected.SetFOV(new Rectangle(10, 10, pictureBox.Width - 20, pictureBox.Height - 20));
 
 			UpdateBars();
 			
@@ -385,7 +386,7 @@ namespace SalemElderTileMerger
 		private void pictureBox_Paint(object sender, PaintEventArgs e)
 		{
 			if (selected == null)
-				e.Graphics.Clear(BackColor);
+				e.Graphics.Clear(pictureBox.BackColor);
 			else
 				selected.Draw(e.Graphics);
 		}

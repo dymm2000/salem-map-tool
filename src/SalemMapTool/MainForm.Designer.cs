@@ -54,7 +54,7 @@
 			this.listBoxSessions.Location = new System.Drawing.Point(0, 24);
 			this.listBoxSessions.Name = "listBoxSessions";
 			this.listBoxSessions.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-			this.listBoxSessions.Size = new System.Drawing.Size(255, 510);
+			this.listBoxSessions.Size = new System.Drawing.Size(255, 526);
 			this.listBoxSessions.TabIndex = 0;
 			this.listBoxSessions.SelectedValueChanged += new System.EventHandler(this.listBoxSessions_SelectedValueChanged);
 			// 
@@ -81,24 +81,24 @@
 			// vScrollBar
 			// 
 			this.vScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
-			this.vScrollBar.Location = new System.Drawing.Point(749, 0);
+			this.vScrollBar.Location = new System.Drawing.Point(749, 24);
 			this.vScrollBar.Name = "vScrollBar";
-			this.vScrollBar.Size = new System.Drawing.Size(16, 550);
+			this.vScrollBar.Size = new System.Drawing.Size(16, 510);
 			this.vScrollBar.TabIndex = 2;
 			this.vScrollBar.ValueChanged += new System.EventHandler(this.vScrollBar_ValueChanged);
 			// 
 			// hScrollBar
 			// 
 			this.hScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.hScrollBar.Location = new System.Drawing.Point(0, 534);
+			this.hScrollBar.Location = new System.Drawing.Point(255, 534);
 			this.hScrollBar.Name = "hScrollBar";
-			this.hScrollBar.Size = new System.Drawing.Size(749, 16);
+			this.hScrollBar.Size = new System.Drawing.Size(510, 16);
 			this.hScrollBar.TabIndex = 3;
 			this.hScrollBar.ValueChanged += new System.EventHandler(this.hScrollBar_ValueChanged);
 			// 
 			// trackBarZoom
 			// 
-			this.trackBarZoom.Location = new System.Drawing.Point(261, 27);
+			this.trackBarZoom.Location = new System.Drawing.Point(271, 36);
 			this.trackBarZoom.Name = "trackBarZoom";
 			this.trackBarZoom.Orientation = System.Windows.Forms.Orientation.Vertical;
 			this.trackBarZoom.Size = new System.Drawing.Size(42, 104);
@@ -113,7 +113,7 @@
             this.toolStripMenuItemSession});
 			this.menuStripMain.Location = new System.Drawing.Point(0, 0);
 			this.menuStripMain.Name = "menuStripMain";
-			this.menuStripMain.Size = new System.Drawing.Size(749, 24);
+			this.menuStripMain.Size = new System.Drawing.Size(765, 24);
 			this.menuStripMain.TabIndex = 5;
 			this.menuStripMain.MenuActivate += new System.EventHandler(this.menuStripMain_MenuActivate);
 			// 
@@ -141,13 +141,13 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(765, 550);
-			this.Controls.Add(this.linkLabelHome);
 			this.Controls.Add(this.trackBarZoom);
 			this.Controls.Add(this.pictureBox);
-			this.Controls.Add(this.listBoxSessions);
-			this.Controls.Add(this.menuStripMain);
-			this.Controls.Add(this.hScrollBar);
 			this.Controls.Add(this.vScrollBar);
+			this.Controls.Add(this.hScrollBar);
+			this.Controls.Add(this.listBoxSessions);
+			this.Controls.Add(this.linkLabelHome);
+			this.Controls.Add(this.menuStripMain);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStripMain;
 			this.Name = "MainForm";
