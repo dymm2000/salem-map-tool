@@ -14,7 +14,7 @@ using System.Globalization;
 using System.Collections;
 using System.Diagnostics;
 
-namespace SalemElderTileMerger
+namespace SalemMapTool
 {
 	public partial class MainForm : Form
 	{
@@ -24,6 +24,7 @@ namespace SalemElderTileMerger
 		bool shftPressed = false;
 		int x0, y0, x, y;
 		Hashtable parameters = new Hashtable();
+		ExportParams exportParams = ExportParams.Default;
 
 		const string s_backColor = "backcolor";
 		const string s_importMinSize = "importminsize";
@@ -120,6 +121,8 @@ namespace SalemElderTileMerger
 					parameters[s_importMinSize] = Math.Max(0, uvalue);
 				}
 			}
+
+			exportParams.Directory = (string)parameters[s_exportDir];
 		}
 		void UpdateBars()
 		{ 
@@ -247,28 +250,24 @@ namespace SalemElderTileMerger
 		}
 		private void toolStripMenuItemExport_Click(object sender, EventArgs e)
 		{
-			using (FolderBrowserDialog d = new FolderBrowserDialog())
+			if (ExportSettingsForm.Show(exportParams))
 			{
-				d.SelectedPath = (string)parameters[s_exportDir];
-				if (d.ShowDialog() == DialogResult.OK)
+				Cursor.Current = Cursors.WaitCursor;
+				try
 				{
-					Cursor.Current = Cursors.WaitCursor;
-					try
-					{
-						foreach (Session session in listBoxSessions.SelectedItems)
-							try
-							{
-								session.Save(d.SelectedPath);
-							}
-							catch (Exception ex)
-							{
-								MessageBox.Show(string.Format("Session '{0}'\n{1}", session.Name, ex.Message), "Error");
-							}
-					}
-					finally
-					{
-						Cursor.Current = Cursors.Default;
-					}
+					foreach (Session session in listBoxSessions.SelectedItems)
+						try
+						{
+							session.Save(exportParams);
+						}
+						catch (Exception ex)
+						{
+							MessageBox.Show(string.Format("Session '{0}'\n{1}", session.Name, ex.Message), "Error");
+						}
+				}
+				finally
+				{
+					Cursor.Current = Cursors.Default;
 				}
 			}
 		}
