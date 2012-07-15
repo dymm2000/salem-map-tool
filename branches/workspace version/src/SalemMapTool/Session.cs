@@ -9,7 +9,7 @@ using System.Drawing.Drawing2D;
 using System.Collections;
 using System.Windows.Forms;
 
-namespace SalemElderTileMerger
+namespace SalemMapTool
 {
 	public class Session
 	{
@@ -371,42 +371,70 @@ namespace SalemElderTileMerger
 				g.DrawRectangle(new Pen(Brushes.Yellow, 3), dst.Left, dst.Top, dst.Width, dst.Height);
 			}
 		}
-		public void Save(string directory)
+		public void Save(ExportParams p)
 		{
-			string mapdir = Path.Combine(directory, Name);
-			if (Directory.Exists(mapdir))
-				throw new Exception(string.Format("Directory exists:\n{0}", mapdir));
-			Directory.CreateDirectory(mapdir);
-			
-			if (chosen == null)
-			{
-				foreach (Tile tile in tiles)
-					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.X / tile.Width, tile.Y / tile.Height)), ImageFormat.Png);
-			}
-			else
-			{ 
-				foreach (Tile tile in tiles)
-					tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height)), ImageFormat.Png);
-			}
+			if (Directory.Exists(p.Directory))
+				throw new Exception(string.Format("Directory exists:\n{0}", p.Directory));
+			Directory.CreateDirectory(p.Directory);
 
-			string mapfile = Path.Combine(directory, Name + ".png");
-			if (File.Exists(mapfile))
-				throw new Exception(string.Format("Map file exists:\n{0}", mapfile));
-
-			try
+			if (p.ExportTiles)
 			{
-				using (Image i = new Bitmap((int)r.Width, (int)r.Height))
+				string mapdir = Path.Combine(p.Directory, Name);
+
+				Directory.CreateDirectory(mapdir);
+				if (chosen == null)
 				{
-					using (Graphics g = Graphics.FromImage(i))
-						foreach (Tile tile in tiles)
-							g.DrawImage(tile.Image, tile.X, tile.Y);
-
-					i.Save(mapfile, ImageFormat.Png);
+					foreach (Tile tile in tiles)
+						tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.X / tile.Width, tile.Y / tile.Height)), ImageFormat.Png);
+				}
+				else
+				{
+					foreach (Tile tile in tiles)
+						tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height)), ImageFormat.Png);
 				}
 			}
-			catch (Exception e)
-			{
-				throw new Exception(string.Format("Whole map can not be saved:\n{0}", e.Message));
+
+			if (p.ExportMap)
+			{ 
+				string mapfile = Path.Combine(p.Directory, Name + (p.Format == ImageFormat.Png ? ".png" : ".jpg"));
+
+				try
+				{
+					using (Image i = new Bitmap((int)r.Width, (int)r.Height))
+					{
+						using (Graphics g = Graphics.FromImage(i))
+						{
+							foreach (Tile tile in tiles)
+								g.DrawImage(tile.Image, tile.X, tile.Y);
+
+							if (p.ShowGrid)
+							{ 
+								if (chosen == null)
+								{
+									foreach (Tile tile in tiles)
+									{
+										g.DrawRectangle(Pens.White, tile.X, tile.Y, tile.Width, tile.Height);
+										g.DrawString(string.Format("({0},{1})", tile.X / tile.Width, tile.Y / tile.Height), new Font(FontFamily.GenericSansSerif, 8), Brushes.White, tile.X + 2, tile.Y + 2);
+									}
+								}
+								else
+								{ 
+									foreach (Tile tile in tiles)
+									{
+										g.DrawRectangle(Pens.White, tile.X, tile.Y, tile.Width, tile.Height);
+										g.DrawString(string.Format("({0},{1})", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height), new Font(FontFamily.GenericSansSerif, 8), Brushes.White, tile.X + 2, tile.Y + 2);
+									}
+								}
+							}
+						}
+
+						i.Save(mapfile, p.Format);
+					}
+				}
+				catch (Exception e)
+				{
+					throw new Exception(string.Format("Whole map can not be saved:\n{0}", e.Message));
+				}
 			}
 		}
 
