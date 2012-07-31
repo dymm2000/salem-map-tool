@@ -373,15 +373,17 @@ namespace SalemMapTool
 		}
 		public void Save(ExportParams p)
 		{
-			if (Directory.Exists(p.Directory))
-				throw new Exception(string.Format("Directory exists:\n{0}", p.Directory));
-			Directory.CreateDirectory(p.Directory);
+			//if (Directory.Exists(p.Directory))
+			//    throw new Exception(string.Format("Directory exists:\n{0}", p.Directory));
+			//Directory.CreateDirectory(p.Directory);
 
 			if (p.ExportTiles)
 			{
 				string mapdir = Path.Combine(p.Directory, Name);
-
+				if (Directory.Exists(mapdir))
+					throw new Exception(string.Format("Directory exists:\n{0}", mapdir));
 				Directory.CreateDirectory(mapdir);
+
 				if (chosen == null)
 				{
 					foreach (Tile tile in tiles)
@@ -397,6 +399,8 @@ namespace SalemMapTool
 			if (p.ExportMap)
 			{ 
 				string mapfile = Path.Combine(p.Directory, Name + (p.Format == ImageFormat.Png ? ".png" : ".jpg"));
+				if (File.Exists(mapfile))
+					throw new Exception(string.Format("File exists:\n{0}", mapfile));
 
 				try
 				{
