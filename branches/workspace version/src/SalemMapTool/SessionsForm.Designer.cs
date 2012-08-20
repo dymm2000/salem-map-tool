@@ -1,6 +1,6 @@
 ﻿namespace SalemMapTool
 {
-	partial class MainForm
+	partial class SessionsForm
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SessionsForm));
 			this.listBoxSessions = new System.Windows.Forms.ListBox();
 			this.contextMenuStripSessions = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.pictureBox = new System.Windows.Forms.PictureBox();
@@ -101,7 +101,7 @@
 			this.trackBarZoom.Location = new System.Drawing.Point(271, 36);
 			this.trackBarZoom.Name = "trackBarZoom";
 			this.trackBarZoom.Orientation = System.Windows.Forms.Orientation.Vertical;
-			this.trackBarZoom.Size = new System.Drawing.Size(42, 104);
+			this.trackBarZoom.Size = new System.Drawing.Size(45, 104);
 			this.trackBarZoom.TabIndex = 4;
 			this.trackBarZoom.TabStop = false;
 			this.trackBarZoom.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -120,7 +120,7 @@
 			// toolStripMenuItemSession
 			// 
 			this.toolStripMenuItemSession.Name = "toolStripMenuItemSession";
-			this.toolStripMenuItemSession.Size = new System.Drawing.Size(55, 20);
+			this.toolStripMenuItemSession.Size = new System.Drawing.Size(58, 20);
 			this.toolStripMenuItemSession.Text = "Session";
 			// 
 			// linkLabelHome
@@ -136,7 +136,7 @@
 			this.linkLabelHome.Text = "Project Home Page";
 			this.linkLabelHome.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelHome_LinkClicked);
 			// 
-			// MainForm
+			// SessionsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -150,7 +150,7 @@
 			this.Controls.Add(this.menuStripMain);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStripMain;
-			this.Name = "MainForm";
+			this.Name = "SessionsForm";
 			this.Text = "Salem Map Tool";
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).EndInit();

@@ -15,7 +15,7 @@ namespace SalemMapTool
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new MainForm(args));
+			Application.Run(new SessionsForm(args));
 		}
 	}
 }
