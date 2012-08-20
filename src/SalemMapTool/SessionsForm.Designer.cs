@@ -30,7 +30,7 @@
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SessionsForm));
-			this.listBoxSessions = new System.Windows.Forms.ListBox();
+			this.listBoxSessions = new System.Windows.Forms.CheckedListBox();
 			this.contextMenuStripSessions = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.pictureBox = new System.Windows.Forms.PictureBox();
 			this.vScrollBar = new System.Windows.Forms.VScrollBar();
@@ -53,7 +53,6 @@
 			this.listBoxSessions.IntegralHeight = false;
 			this.listBoxSessions.Location = new System.Drawing.Point(0, 24);
 			this.listBoxSessions.Name = "listBoxSessions";
-			this.listBoxSessions.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
 			this.listBoxSessions.Size = new System.Drawing.Size(255, 526);
 			this.listBoxSessions.TabIndex = 0;
 			this.listBoxSessions.SelectedValueChanged += new System.EventHandler(this.listBoxSessions_SelectedValueChanged);
@@ -163,7 +162,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.ListBox listBoxSessions;
+		private System.Windows.Forms.CheckedListBox listBoxSessions;
 		private System.Windows.Forms.PictureBox pictureBox;
 		private System.Windows.Forms.VScrollBar vScrollBar;
 		private System.Windows.Forms.HScrollBar hScrollBar;

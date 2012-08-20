@@ -46,6 +46,9 @@ namespace SalemMapTool
 			contextMenuStripSessions.Items.Add("Cut...", null, toolStripMenuItemCut_Click);
 			contextMenuStripSessions.Items.Add(new ToolStripSeparator());
 			contextMenuStripSessions.Items.Add("Remove", null, toolStripMenuItemRemove_Click);
+			contextMenuStripSessions.Items.Add(new ToolStripSeparator());
+			contextMenuStripSessions.Items.Add("Check all", null, toolStripMenuItemCheckall_Click);
+			contextMenuStripSessions.Items.Add("Uncheck all", null, toolStripMenuItemUncheckall_Click);
 
 			toolStripMenuItemSession.DropDownItems.Add("Import...", null, toolStripMenuItemImport_Click);
 			toolStripMenuItemSession.DropDownItems.Add("Export...", null, toolStripMenuItemExport_Click);
@@ -55,6 +58,9 @@ namespace SalemMapTool
 			toolStripMenuItemSession.DropDownItems.Add("Cut...", null, toolStripMenuItemCut_Click);
 			toolStripMenuItemSession.DropDownItems.Add(new ToolStripSeparator());
 			toolStripMenuItemSession.DropDownItems.Add("Remove", null, toolStripMenuItemRemove_Click);
+			toolStripMenuItemSession.DropDownItems.Add(new ToolStripSeparator());
+			toolStripMenuItemSession.DropDownItems.Add("Check all", null, toolStripMenuItemCheckall_Click);
+			toolStripMenuItemSession.DropDownItems.Add("Uncheck all", null, toolStripMenuItemUncheckall_Click);
 
 			hScrollBar.Enabled = false;
 			vScrollBar.Enabled = false;
@@ -152,23 +158,27 @@ namespace SalemMapTool
 		void UpdateMenu()
 		{ 
 			bool selectedSingle = selected != null;
-			bool selectedMulti = listBoxSessions.SelectedItems.Count > 0;
-			bool canMerge = listBoxSessions.SelectedItems.Count > 1;
-			foreach (Session session in listBoxSessions.SelectedItems)
+			bool checkedAny = listBoxSessions.Items.Count > 0 && listBoxSessions.CheckedItems.Count > 0;
+			bool checkedAll = listBoxSessions.CheckedItems.Count == listBoxSessions.Items.Count;
+			bool canMerge = listBoxSessions.CheckedItems.Count > 1;
+			foreach (Session session in listBoxSessions.CheckedItems)
 				canMerge &= session.CanMerge;
 
 			contextMenuStripSessions.Items[1].Enabled = selectedSingle;
 			contextMenuStripSessions.Items[3].Enabled = canMerge;
 			contextMenuStripSessions.Items[4].Enabled = selectedSingle;
 			contextMenuStripSessions.Items[5].Enabled = selectedSingle;
-			contextMenuStripSessions.Items[7].Enabled = selectedMulti;
-
+			contextMenuStripSessions.Items[7].Enabled = checkedAny;
+			contextMenuStripSessions.Items[9].Enabled = !checkedAll;
+			contextMenuStripSessions.Items[10].Enabled = checkedAny;
 
 			toolStripMenuItemSession.DropDownItems[1].Enabled = selectedSingle;
 			toolStripMenuItemSession.DropDownItems[3].Enabled = canMerge;
 			toolStripMenuItemSession.DropDownItems[4].Enabled = selectedSingle;
 			toolStripMenuItemSession.DropDownItems[5].Enabled = selectedSingle;
-			toolStripMenuItemSession.DropDownItems[7].Enabled = selectedMulti;
+			toolStripMenuItemSession.DropDownItems[7].Enabled = checkedAny;
+			contextMenuStripSessions.Items[9].Enabled = !checkedAll;
+			contextMenuStripSessions.Items[10].Enabled = checkedAny;
 		}
 		bool NameQuery(ref string name)
 		{
@@ -200,7 +210,6 @@ namespace SalemMapTool
 						Session session = new Session(Path.GetFileName(d.SelectedPath));
 						if (session.Load(d.SelectedPath, (uint)parameters[s_importMinSize]))
 						{
-							listBoxSessions.SelectedItems.Clear();
 							listBoxSessions.Items.Add(session);
 							selected = session;
 						}
@@ -210,7 +219,6 @@ namespace SalemMapTool
 							session = new Session(Path.GetFileName(folder));
 							if (session.Load(folder, (uint)parameters[s_importMinSize]))
 							{
-								listBoxSessions.SelectedItems.Clear();
 								listBoxSessions.Items.Add(session);
 								selected = session;
 							}
@@ -236,9 +244,8 @@ namespace SalemMapTool
 					return;
 
 				Session session = new Session(name);
-				if (session.Load(listBoxSessions.SelectedItems))
+				if (session.Load(listBoxSessions.CheckedItems))
 				{
-					listBoxSessions.SelectedItems.Clear();
 					listBoxSessions.Items.Add(session);
 					listBoxSessions.SelectedItem = session;
 				}
@@ -255,7 +262,7 @@ namespace SalemMapTool
 				Cursor.Current = Cursors.WaitCursor;
 				try
 				{
-					foreach (Session session in listBoxSessions.SelectedItems)
+					foreach (Session session in listBoxSessions.CheckedItems)
 						try
 						{
 							session.Save(exportParams);
@@ -283,7 +290,6 @@ namespace SalemMapTool
 				Session session = new Session(name);
 				if (session.Load(selected, Session.Inheritance.Crop))
 				{
-					listBoxSessions.SelectedItems.Clear();
 					listBoxSessions.Items.Add(session);
 					listBoxSessions.SelectedItem = session;
 				}
@@ -305,7 +311,6 @@ namespace SalemMapTool
 				Session session = new Session(name);
 				if (session.Load(selected, Session.Inheritance.Cut))
 				{
-					listBoxSessions.SelectedItems.Clear();
 					listBoxSessions.Items.Add(session);
 					listBoxSessions.SelectedItem = session;
 				}
@@ -318,10 +323,36 @@ namespace SalemMapTool
 		private void toolStripMenuItemRemove_Click(object sender, EventArgs e)
 		{
 			List<Session> selected = new List<Session>();
-			foreach (Session session in listBoxSessions.SelectedItems)
+			foreach (Session session in listBoxSessions.CheckedItems)
 				selected.Add(session);
 			foreach (Session session in selected)
 				listBoxSessions.Items.Remove(session);
+		}
+		private void toolStripMenuItemCheckall_Click(object sender, EventArgs e)
+		{
+			listBoxSessions.BeginUpdate();
+			try
+			{
+				for (int i = 0; i < listBoxSessions.Items.Count; i++)
+					listBoxSessions.SetItemChecked(i, true);
+			}
+			finally
+			{
+				listBoxSessions.EndUpdate();
+			}
+		}
+		private void toolStripMenuItemUncheckall_Click(object sender, EventArgs e)
+		{
+			listBoxSessions.BeginUpdate();
+			try
+			{
+				for (int i = 0; i < listBoxSessions.Items.Count; i++)
+					listBoxSessions.SetItemChecked(i, false);
+			}
+			finally
+			{
+				listBoxSessions.EndUpdate();
+			}
 		}
 
 		private void linkLabelHome_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -330,7 +361,7 @@ namespace SalemMapTool
 		}
 		private void listBoxSessions_SelectedValueChanged(object sender, EventArgs e)
 		{
-			selected = listBoxSessions.SelectedItems.Count == 1 ? listBoxSessions.SelectedItem as Session : null;
+			selected = listBoxSessions.SelectedItem as Session;
 
 			hScrollBar.Enabled = selected != null;
 			vScrollBar.Enabled = selected != null;
