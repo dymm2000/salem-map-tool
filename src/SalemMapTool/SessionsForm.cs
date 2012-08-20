@@ -16,7 +16,7 @@ using System.Diagnostics;
 
 namespace SalemMapTool
 {
-	public partial class MainForm : Form
+	public partial class SessionsForm : Form
 	{
 		Session selected = null;
 		bool updating = false;
@@ -32,7 +32,7 @@ namespace SalemMapTool
 		const string s_exportDir = "exportdir";
 		const string s_userprofile = "userprofile";
 
-		public MainForm(string[] args)
+		public SessionsForm(string[] args)
 		{
 			ReadParameters(args);
 
