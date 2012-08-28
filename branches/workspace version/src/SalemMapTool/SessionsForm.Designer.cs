@@ -38,6 +38,7 @@
 			this.trackBarZoom = new System.Windows.Forms.TrackBar();
 			this.menuStripMain = new System.Windows.Forms.MenuStrip();
 			this.toolStripMenuItemSession = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItemView = new System.Windows.Forms.ToolStripMenuItem();
 			this.linkLabelHome = new System.Windows.Forms.LinkLabel();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarZoom)).BeginInit();
@@ -109,7 +110,8 @@
 			// menuStripMain
 			// 
 			this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItemSession});
+            this.toolStripMenuItemSession,
+            this.toolStripMenuItemView});
 			this.menuStripMain.Location = new System.Drawing.Point(0, 0);
 			this.menuStripMain.Name = "menuStripMain";
 			this.menuStripMain.Size = new System.Drawing.Size(765, 24);
@@ -121,6 +123,12 @@
 			this.toolStripMenuItemSession.Name = "toolStripMenuItemSession";
 			this.toolStripMenuItemSession.Size = new System.Drawing.Size(58, 20);
 			this.toolStripMenuItemSession.Text = "Session";
+			// 
+			// toolStripMenuItemView
+			// 
+			this.toolStripMenuItemView.Name = "toolStripMenuItemView";
+			this.toolStripMenuItemView.Size = new System.Drawing.Size(44, 20);
+			this.toolStripMenuItemView.Text = "View";
 			// 
 			// linkLabelHome
 			// 
@@ -171,6 +179,7 @@
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSession;
 		private System.Windows.Forms.ContextMenuStrip contextMenuStripSessions;
 		private System.Windows.Forms.LinkLabel linkLabelHome;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemView;
 	}
 }
 

@@ -62,6 +62,8 @@ namespace SalemMapTool
 			toolStripMenuItemSession.DropDownItems.Add("Check all", null, toolStripMenuItemCheckall_Click);
 			toolStripMenuItemSession.DropDownItems.Add("Uncheck all", null, toolStripMenuItemUncheckall_Click);
 
+			toolStripMenuItemView.DropDownItems.Add("Show grid", null, toolStripMenuItemShowgrid_Click);
+
 			hScrollBar.Enabled = false;
 			vScrollBar.Enabled = false;
 			trackBarZoom.Visible = false;
@@ -177,8 +179,10 @@ namespace SalemMapTool
 			toolStripMenuItemSession.DropDownItems[4].Enabled = selectedSingle;
 			toolStripMenuItemSession.DropDownItems[5].Enabled = selectedSingle;
 			toolStripMenuItemSession.DropDownItems[7].Enabled = checkedAny;
-			contextMenuStripSessions.Items[9].Enabled = !checkedAll;
-			contextMenuStripSessions.Items[10].Enabled = checkedAny;
+			toolStripMenuItemSession.DropDownItems[9].Enabled = !checkedAll;
+			toolStripMenuItemSession.DropDownItems[10].Enabled = checkedAny;
+
+			(toolStripMenuItemView.DropDownItems[0] as ToolStripMenuItem).Checked = Session.ShowGrid;
 		}
 		bool NameQuery(ref string name)
 		{
@@ -353,6 +357,12 @@ namespace SalemMapTool
 			{
 				listBoxSessions.EndUpdate();
 			}
+		}
+		private void toolStripMenuItemShowgrid_Click(object sender, EventArgs e)
+		{
+			Session.ShowGrid = !Session.ShowGrid;
+			
+			pictureBox.Refresh();
 		}
 
 		private void linkLabelHome_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
