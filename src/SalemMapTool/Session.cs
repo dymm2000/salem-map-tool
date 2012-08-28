@@ -50,6 +50,14 @@ namespace SalemMapTool
 			public int Y { get; set; }
 			public int Width { get; set; }
 			public int Height { get; set; }
+			public int Row
+			{
+				get { return Y / Height; }
+			}
+			public int Col
+			{
+				get { return X / Width; }
+			}
 			public Image Image 
 			{
 				get 
@@ -327,6 +335,7 @@ namespace SalemMapTool
 			RectangleF dst;
 			RectangleF src;
 
+			Font f = new Font(FontFamily.GenericSansSerif, 8);
 			foreach (Tile tile in tiles)
 			{
 				src = new RectangleF(tile.X, tile.Y, tile.Width, tile.Height);
@@ -335,17 +344,32 @@ namespace SalemMapTool
 				if (src.Width == 0 || src.Height == 0)
 					continue;
 
-				dst = new RectangleF(p0.X + (tile.X - fov.Left) * zoom, p0.Y + (tile.Y - fov.Top) * zoom, tile.Width * zoom, tile.Height * zoom);
-				dst.Intersect(p);
-
 				src = new RectangleF(src.Left - tile.X, src.Top - tile.Y, src.Width, src.Height);
 
+				dst = new RectangleF(
+					p0.X + (tile.X - fov.Left) * zoom, 
+					p0.Y + (tile.Y - fov.Top) * zoom, 
+					tile.Width * zoom, tile.Height * zoom);
+				dst.Intersect(p);
+
 				g.DrawImage(tile.Image, dst, src, GraphicsUnit.Pixel);
+
+				if (ShowGrid && tile != chosen)
+				{
+					string s = chosen == null ? 
+						string.Format("({0},{1})", tile.Col, tile.Row) : 
+						string.Format("({0},{1})", tile.Col - chosen.Col, tile.Row - chosen.Row);
+
+					g.DrawRectangle(Pens.White, dst.Left, dst.Top, dst.Width, dst.Height);
+					if (zoom > 0.4 && src.Width == tileSize && src.Height == tileSize)
+						g.DrawString(s, f, Brushes.White, dst.Left + 2, dst.Top + 2);
+				}
 			}
 
 			if (chosen != null)
 			{
-				dst = new RectangleF(p0.X + (chosen.X - fov.Left) * zoom, 
+				dst = new RectangleF(
+					p0.X + (chosen.X - fov.Left) * zoom, 
 					p0.Y + (chosen.Y - fov.Top) * zoom, 
 					chosen.Width * zoom, chosen.Height * zoom);
 				dst.Intersect(p);
@@ -387,12 +411,12 @@ namespace SalemMapTool
 				if (chosen == null)
 				{
 					foreach (Tile tile in tiles)
-						tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.X / tile.Width, tile.Y / tile.Height)), ImageFormat.Png);
+						tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.Col, tile.Row)), ImageFormat.Png);
 				}
 				else
 				{
 					foreach (Tile tile in tiles)
-						tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height)), ImageFormat.Png);
+						tile.Image.Save(Path.Combine(mapdir, string.Format("tile_{0}_{1}.png", tile.Col - chosen.Col, tile.Row - chosen.Row)), ImageFormat.Png);
 				}
 			}
 
@@ -413,21 +437,15 @@ namespace SalemMapTool
 
 							if (p.ShowGrid)
 							{ 
-								if (chosen == null)
+								Font f = new Font(FontFamily.GenericSansSerif, 8);
+								foreach (Tile tile in tiles)
 								{
-									foreach (Tile tile in tiles)
-									{
-										g.DrawRectangle(Pens.White, tile.X, tile.Y, tile.Width, tile.Height);
-										g.DrawString(string.Format("({0},{1})", tile.X / tile.Width, tile.Y / tile.Height), new Font(FontFamily.GenericSansSerif, 8), Brushes.White, tile.X + 2, tile.Y + 2);
-									}
-								}
-								else
-								{ 
-									foreach (Tile tile in tiles)
-									{
-										g.DrawRectangle(Pens.White, tile.X, tile.Y, tile.Width, tile.Height);
-										g.DrawString(string.Format("({0},{1})", (tile.X - chosen.X) / tile.Width, (tile.Y - chosen.Y) / tile.Height), new Font(FontFamily.GenericSansSerif, 8), Brushes.White, tile.X + 2, tile.Y + 2);
-									}
+									string s = chosen == null ? 
+										string.Format("({0},{1})", tile.Col, tile.Row) : 
+										string.Format("({0},{1})", tile.Col - chosen.Col, tile.Row - chosen.Row);
+
+									g.DrawRectangle(Pens.White, tile.X, tile.Y, tile.Width, tile.Height);
+									g.DrawString(s, f, Brushes.White, tile.X + 2, tile.Y + 2);
 								}
 							}
 						}
@@ -447,6 +465,11 @@ namespace SalemMapTool
 			return string.Format("{0} [{1}] [{2}x{3}]", Name, tiles.Count, r.Width, r.Height);
 		}
 
+		public static bool ShowGrid
+		{
+			get;
+			set;
+		}
 		public int Width
 		{
 			get { return (int)r.Width; }
