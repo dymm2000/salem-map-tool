@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.IO;
@@ -374,15 +373,21 @@ namespace SalemMapTool
 					chosen.Width * zoom, chosen.Height * zoom);
 				dst.Intersect(p);
 
+				if (!ShowGrid)
+				{
+					dst.Width -= 1;
+					dst.Height -= 1;
+				}
+
 				if (zoom > 0.2)
 				{
-					g.DrawRectangle(Pens.White, dst.Left, dst.Top, dst.Width - 1, dst.Height - 1);
+					g.DrawRectangle(Pens.White, dst.Left, dst.Top, dst.Width, dst.Height);
 					g.FillRectangle(new HatchBrush(HatchStyle.DiagonalCross, Color.White, Color.Transparent),
-						dst.Left, dst.Top, dst.Width - 1, dst.Height - 1);
+						dst.Left, dst.Top, dst.Width, dst.Height);
 				}
 				else
 				{
-					g.FillRectangle(Brushes.White, dst.Left, dst.Top, dst.Width - 1, dst.Height - 1);
+					g.FillRectangle(Brushes.White, dst.Left, dst.Top, dst.Width, dst.Height);
 				}
 			}
 
