@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 using System.Collections;
-using System.Windows.Forms;
 
 namespace SalemMapTool
 {
@@ -19,15 +18,15 @@ namespace SalemMapTool
 			Cut
 		}
 
-		class Tile
+	    public class Tile
 		{
 			//byte[] bytes;
-			Image image;
-
+	        readonly Image image;
+		    private readonly byte[] _bytes;
 			public Tile(byte[] bytes)
 			{
-				//this.bytes = bytes;
-				using (MemoryStream m = new MemoryStream(bytes))
+				_bytes = bytes;
+				using (var m = new MemoryStream(bytes))
 					image = Image.FromStream(m); 
 			}
 			//public Tile(Tile tile): this(tile.bytes)
@@ -39,11 +38,12 @@ namespace SalemMapTool
 			//}
 			public Tile(Tile tile)
 			{
-				this.X = tile.X;
-				this.Y = tile.Y;
-				this.Width = tile.Width;
-				this.Height = tile.Height;
-				this.image = tile.image;
+				X = tile.X;
+				Y = tile.Y;
+				Width = tile.Width;
+				Height = tile.Height;
+				image = tile.image;
+			    _bytes = tile.Bytes;
 			}
 
 			public int X { get; set; }
@@ -59,6 +59,10 @@ namespace SalemMapTool
 					return image;
 				} 
 			}
+		    public byte[] Bytes
+		    {
+		        get { return _bytes; }
+		    }
 
 			public override string ToString()
 			{
@@ -81,6 +85,31 @@ namespace SalemMapTool
 		RectangleF selection;
 		List<Tile> tiles = new List<Tile>();
 
+        public Dictionary<string, Tile> GenerateHash()
+        {
+            var result = new Dictionary<string, Tile>();
+
+
+            using (MD5 md5 = MD5.Create())
+            {
+                foreach (var tile in tiles)
+                {
+                    var hashBytes = md5.ComputeHash(tile.Bytes);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < hashBytes.Length; i++)
+                    {
+                        sb.Append(hashBytes[i].ToString("X2"));
+                    }
+
+                    string hash = sb.ToString();
+                    if (!result.ContainsKey(hash))
+                        result.Add(hash, tile);
+                }
+            }
+
+            return result;
+        }
+
 		public Session(string name)
 		{ 
 			Name = name;
@@ -93,23 +122,26 @@ namespace SalemMapTool
 			int bottom = int.MinValue;
 			foreach (string f in Directory.GetFiles(path, "tile_*.png"))
 			{
-				string[] p = Path.GetFileNameWithoutExtension(f).Split('_');
-				Tile tile = new Tile(File.ReadAllBytes(f));
-				//tile.Image = Image.FromFile(f);
-				tile.Width = tileSize;
-				tile.Height = tileSize;
-				tile.X = int.Parse(p[1]) * tile.Width;
-				tile.Y = int.Parse(p[2]) * tile.Height;
+			    var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(f);
+			    if (fileNameWithoutExtension == null) continue;
+			    
+                var filename = fileNameWithoutExtension.Split('_');
+			    var tile = new Tile(File.ReadAllBytes(f));
+			    //tile.Image = Image.FromFile(f);
+			    tile.Width = tileSize;
+			    tile.Height = tileSize;
+			    tile.X = int.Parse(filename[1]) * tile.Width;
+			    tile.Y = int.Parse(filename[2]) * tile.Height;
 
-				tiles.Add(tile);
+			    tiles.Add(tile);
 
-				left = Math.Min(left, tile.X);
-				right = Math.Max(right, tile.X + tile.Width);
-				top = Math.Min(top, tile.Y);
-				bottom = Math.Max(bottom, tile.Y + tile.Height);
+			    left = Math.Min(left, tile.X);
+			    right = Math.Max(right, tile.X + tile.Width);
+			    top = Math.Min(top, tile.Y);
+			    bottom = Math.Max(bottom, tile.Y + tile.Height);
 			}
 
-			if (tiles.Count < minSize)
+		    if (tiles.Count < minSize)
 				return false;
 
 			foreach (Tile tile in tiles)
@@ -211,13 +243,14 @@ namespace SalemMapTool
 
 		void Init(int w, int h)
 		{
-			float zoomStep = (float)Math.Sqrt(2);
-			float zoomMax = 2;
-			float zoomMin = Math.Min(1f, (float)Math.Pow(zoomStep, Math.Floor(Math.Log(1000f / Math.Max(w, h), zoomStep))));
+			var zoomStep = (float)Math.Sqrt(2);
+			var zoomMax = 2;
+			var zoomMin = 
+                Math.Min(1f, (float)Math.Pow(zoomStep, Math.Floor(Math.Log(1000f / Math.Max(w, h), zoomStep))));
 
 			zooms = Array.CreateInstance(typeof(float), 
-				new int[] { (int)Math.Ceiling(Math.Log(zoomMax, zoomStep)) - (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) },
-				new int[] { (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) });
+				new[] { (int)Math.Ceiling(Math.Log(zoomMax, zoomStep)) - (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) },
+				new[] { (int)Math.Ceiling(Math.Log(zoomMin, zoomStep)) });
 			
 			for (int i = ZoomMin; i <= ZoomMax; i++)
 				zooms.SetValue((float)Math.Pow(zoomStep, i), i);
@@ -332,7 +365,7 @@ namespace SalemMapTool
 				src = new RectangleF(tile.X, tile.Y, tile.Width, tile.Height);
 				src.Intersect(fov);
 				
-				if (src.Width == 0 || src.Height == 0)
+				if (src.Width.Equals(0) || src.Height.Equals(0))
 					continue;
 
 				dst = new RectangleF(p0.X + (tile.X - fov.Left) * zoom, p0.Y + (tile.Y - fov.Top) * zoom, tile.Width * zoom, tile.Height * zoom);
@@ -362,7 +395,7 @@ namespace SalemMapTool
 				}
 			}
 
-			if (selection.Width != r.Width || selection.Height != r.Height)
+			if (!selection.Width.Equals(r.Width) || !selection.Height.Equals(r.Height))
 			{
 				dst = new RectangleF(p0.X + (selection.Left - fov.Left) * zoom,
 						p0.Y + (selection.Top - fov.Top) * zoom,
@@ -371,15 +404,15 @@ namespace SalemMapTool
 				g.DrawRectangle(new Pen(Brushes.Yellow, 3), dst.Left, dst.Top, dst.Width, dst.Height);
 			}
 		}
-		public void Save(ExportParams p)
+		public void Save(ExportParams exportParams)
 		{
-			//if (Directory.Exists(p.Directory))
-			//    throw new Exception(string.Format("Directory exists:\n{0}", p.Directory));
-			//Directory.CreateDirectory(p.Directory);
+			//if (Directory.Exists(exportParams.Directory))
+			//    throw new Exception(string.Format("Directory exists:\n{0}", exportParams.Directory));
+			//Directory.CreateDirectory(exportParams.Directory);
 
-			if (p.ExportTiles)
+			if (exportParams.ExportTiles)
 			{
-				string mapdir = Path.Combine(p.Directory, Name);
+				string mapdir = Path.Combine(exportParams.Directory, Name);
 				if (Directory.Exists(mapdir))
 					throw new Exception(string.Format("Directory exists:\n{0}", mapdir));
 				Directory.CreateDirectory(mapdir);
@@ -396,9 +429,11 @@ namespace SalemMapTool
 				}
 			}
 
-			if (p.ExportMap)
+			if (exportParams.ExportMap)
 			{ 
-				string mapfile = Path.Combine(p.Directory, Name + (p.Format == ImageFormat.Png ? ".png" : ".jpg"));
+				var mapfile = Path.Combine(exportParams.Directory,
+                    String.Concat(Name, (Equals(exportParams.Format, ImageFormat.Png) ? ".png" : ".jpg")));
+
 				if (File.Exists(mapfile))
 					throw new Exception(string.Format("File exists:\n{0}", mapfile));
 
@@ -411,7 +446,7 @@ namespace SalemMapTool
 							foreach (Tile tile in tiles)
 								g.DrawImage(tile.Image, tile.X, tile.Y);
 
-							if (p.ShowGrid)
+							if (exportParams.ShowGrid)
 							{ 
 								if (chosen == null)
 								{
@@ -432,7 +467,7 @@ namespace SalemMapTool
 							}
 						}
 
-						i.Save(mapfile, p.Format);
+						i.Save(mapfile, exportParams.Format);
 					}
 				}
 				catch (Exception e)
