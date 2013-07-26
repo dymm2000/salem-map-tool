@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalemMapTool", "SalemMapTool\SalemMapTool.csproj", "{7AB2D3AE-A24C-43F3-82D5-54F2F35DE5B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TileGenerator", "TileGenerator\TileGenerator.csproj", "{4A12CAB7-63FE-4443-B6C6-DBAB80A550C9}"
