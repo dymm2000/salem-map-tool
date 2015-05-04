@@ -1,0 +1,95 @@
+# What-is-it and How-To #
+
+This is small utility for combining and merging maps from the Salem game.
+
+First, you will need the Ender's custom client
+
+http://forum.paradoxplaza.com/forum/showthread.php?603874-Salem-client-by-Ender
+
+or ARHEOLOG's custom client
+
+http://forum.paradoxplaza.com/forum/showthread.php?606810-Salem-Client-BDSaleM-by-APXEOLOG
+
+As well you will need .Net 3.5 (included in Windows 7)
+
+
+# Details #
+
+Open the tool. There are sessions list on the left and image on the rigth.
+
+Ender's custom client saves map tiles (100x100) in **"UserHome/Salem/map"**. It creates new session every time you teleport, login or enter to home, for example.
+
+Import session(s)
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenImport.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenImport.jpg)
+
+Now the sessions list is filled.
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenSession.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenSession.jpg)
+
+You can zoom in/out with mouse wheel or track bar in the top-left corner.
+
+You can drag the map with left button.
+
+To merge two or more session with any common tile you should select this tile on the each session image by **Control+Left mouse button**
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenMergeSource1.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenMergeSource1.jpg)
+![http://salem-map-tool.googlecode.com/svn/wiki/screenMergeSource2.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenMergeSource2.jpg)
+
+Then select those sessions in the list and choose **"Merge"** in the menu
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenMergeMenu.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenMergeMenu.jpg)
+
+New session will be created
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenMergeResult.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenMergeResult.jpg)
+
+You can remove session(s) from the list
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenRemoveMenu.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenRemoveMenu.jpg)
+
+It's important to save merge result, so you can load it in the future and use for further merges.
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenExport.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenExport.jpg)
+
+When exporting, the tool saves whole image as well as all tiles, so you can import merged session like original one. Also you can use it together with Google API scripts.
+
+
+Selected tile will be saved as origin, i.e. **"tile\_0\_0.png"**
+
+If none selected, the top-left one.
+
+
+You can select an area with **Shift+Left mouse button**
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenSelectArea.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenSelectArea.jpg)
+
+To make new session from selected area choose **"Crop"** in the menu
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenCrop.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenCrop.jpg)
+
+To make new session from current one without selected area choose **"Cut"** in the menu
+
+![http://salem-map-tool.googlecode.com/svn/wiki/screenCut.jpg](http://salem-map-tool.googlecode.com/svn/wiki/screenCut.jpg)
+
+
+# Configuration #
+
+There are some parameters in the configuration file:
+
+  * **backcolor** - background map color (hex number **"rrggbb"**, where **rr**,**gg**,**bb** - two bytes of red/green/blue)
+
+  * **importdir** - the folder where import dialog will be opened
+
+  * **exportdir** - the folder where export dialog will be opened
+
+  * **importminsize** - the minimum amount of tiles in imported folder, default is 0 (no limitation)
+
+
+The same parameters can be passed via command line and will have a higher priority, example:
+
+> `SalemMapTool.exe backcolor=4040ff importdir="%userprofile%\salem\map"`
+
+Pay attention to quote a path (double or single)
+
+Environment variables can be used, for example: _%userprofile%_
