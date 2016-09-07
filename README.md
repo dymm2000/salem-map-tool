@@ -1,5 +1,7 @@
 For Salem and Haven and Hearth custom clients
 
+<b>There is no development of this tool ATM.</b>
+
 HOWTO: https://github.com/dymm2000/salem-map-tool/wiki
 
 Download Windows binaries (requires .NET): https://github.com/dymm2000/salem-map-tool/releases
